@@ -44,7 +44,7 @@ ll(1)文法
 > + term -> factor more-factor  
 > + more-factor -> mul-op term | ε  
 > + factor -> specific optr | !factor | inc-op factor | Add-op factor  
-> + specific -> ( logic-or-exp ) | number | variable | NULL | scan( variable )  
+> + specific -> ( logic-or-exp ) | number | variable | NULL | char-value | scan( variable )  
 > + optr -> inc-op | ε  
 > + inc-op -> ++ | --  
 > + number -> int-val | real-val  

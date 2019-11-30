@@ -21,9 +21,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
         public TreeNode SyntaxTree { get; set; }
         public bool IsParseError { get; set; }
         public string Error { get; set; }
+
+        private bool _isAssign;
         //public  int dims;
        /// <summary>
-       /// 此方法用来进行语法分析，调用之前须确保Parser对象里的Tokens链表不为空
+       /// 此方法用来进行语法分析，调用之前须确保Parser对象里的Tokens链表不为空且不含错误token
        /// </summary>
         public void SyntaxAnalyze()
         {  //语法分析主程序
@@ -80,8 +82,25 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 case TokenType.Break:
                 case TokenType.Continue:
                     return ParseJumpStmt();  //转向处理跳转语句
-                default:
+                case TokenType.Id:
                     return ParseAssignStmt();  //转向处理赋值语句
+                case TokenType.IntVal:
+                case TokenType.CharVal:
+                case TokenType.RealVal:
+                case TokenType.Plus:
+                case TokenType.Minus:
+                case TokenType.PlusPlus:
+                case TokenType.MinusMinus:
+                    var node = ParseAssignExp();
+                    ConsumeNextToken(TokenType.End);
+                    return node;
+                case -1:
+                    return null;
+                default:
+                    _enumerator.MoveNext();
+                    CurrentToken = _enumerator.Current;
+                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少语句或语句块.\n");
+                    return null;
             }
         }
 
@@ -153,7 +172,10 @@ namespace CmmInterpreter.Syntactic_Analyzer
         {
             var node = ParseAssignExp();
             ConsumeNextToken(TokenType.End);
-            return node;
+            if (!_isAssign) return node;
+            _isAssign = false;
+            var headNode = new TreeNode(StmtType.AssignStmt) {LeftNode = node};
+            return headNode;
         }
 
         private TreeNode ParseAssignExp()
@@ -360,7 +382,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.Id) { Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少标识符.\n");
             return null;
         }
 
@@ -374,7 +396,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少逻辑运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少逻辑运算符.\n");
             return null;
         }
 
@@ -403,7 +425,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少关系运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少关系运算符.\n");
             return null;
         }
 
@@ -437,7 +459,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少算术运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少算术运算符.\n");
             return null;
         }
 
@@ -450,9 +472,10 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
                 var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                _isAssign = true;
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少赋值运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少赋值运算符.\n");
             return null;
         }
 
@@ -504,7 +527,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     return node;
                 case TokenType.IntVal:
                 case TokenType.RealVal:
-                    node = GetNumValue();
+                case TokenType.CharVal:
+                    node = GetSpecificValue();
                     return node;
                 case TokenType.Null:
                     _enumerator.MoveNext();
@@ -534,7 +558,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     node = ParseVariable();
                     return node;
                 default:
-                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符或数值或表达式.\n");
+                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少标识符或数值或表达式.\n");
                     return null;
             }
         }
@@ -548,7 +572,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少自增/自减运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少自增/自减运算符.\n");
             return null;
         }
 
@@ -559,16 +583,16 @@ namespace CmmInterpreter.Syntactic_Analyzer
             return node;
         }
 
-        private TreeNode GetNumValue()
+        private TreeNode GetSpecificValue()
         {    //获取具体的值
-            if (CheckNextTokenType(TokenType.IntVal, TokenType.RealVal))
+            if (CheckNextTokenType(TokenType.IntVal, TokenType.RealVal, TokenType.CharVal))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
                 var node = new TreeNode(StmtType.Value) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少值类型.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少值类型.\n");
             return null;
         }
 
@@ -590,10 +614,10 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     _enumerator.MoveNext();
                     CurrentToken = _enumerator.Current;
                 }else
-                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
+                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
                 return;
             }
-            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" ").Append("\"").Append(CurrentToken.Value).Append("\"").Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
             throw new ParseException(_errorInfo.ToString());
         }
     }

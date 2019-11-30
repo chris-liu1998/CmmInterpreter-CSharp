@@ -76,6 +76,7 @@
     <Compile Include="Semantic Analyzer\Instruction.cs" />
     <Compile Include="Semantic Analyzer\Interpreter.cs" />
     <Compile Include="Semantic Analyzer\Quadruple.cs" />
+    <Compile Include="Semantic Analyzer\Symbol.cs" />
     <Compile Include="Semantic Analyzer\SymbolTable.cs" />
     <Compile Include="Syntactic Analyzer\Parser.cs" />
     <Compile Include="Syntactic Analyzer\StmtType.cs" />

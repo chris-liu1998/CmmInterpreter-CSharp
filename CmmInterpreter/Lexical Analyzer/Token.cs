@@ -31,6 +31,10 @@
                     return "REAL";
                 case TokenType.RealVal:
                     return "REAL_VALUE";
+                case TokenType.Char:
+                    return "CHAR";
+                case TokenType.CharVal:
+                    return "Char_VALUE";
                 case TokenType.Id:
                     return "Identifier";
                 case TokenType.End:

@@ -132,11 +132,11 @@ namespace CmmInterpreter
             var threadStart = new ThreadStart(lexer.LexAnalyze);
             _thread = new Thread(threadStart) {IsBackground = true};
             _thread.Start();
-            ResultTextBox.Text = "Lexer Analyzing......\n";
+            ResultTextBox.Text = "···········Lexer Analyzing...\n\n";
             while(_thread.IsAlive)
                 Thread.Sleep(10);
             ResultTextBox.Text += lexer.PrintResult();
-            ResultTextBox.Text += "Analysis done!";
+            ResultTextBox.Text += "\n···········Analysis done!";
             StopButton.IsEnabled = false;
             if (ListViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
             {
@@ -158,26 +158,36 @@ namespace CmmInterpreter
             ResultTextBox.Focus();
             lexer.Chars = TextEditor.Text.ToCharArray();
             lexer.LexAnalyze();
-            parser.Tokens = lexer.Words;
-            var threadStart = new ThreadStart(parser.SyntaxAnalyze);
-            _thread = new Thread(threadStart) { IsBackground = true };
-            _thread.Start();
-            ResultTextBox.Text = "Parser Analyzing......\n";
-            while (_thread.IsAlive)
-                Thread.Sleep(10);
-            if (!parser.IsParseError && parser.SyntaxTree != null)
-                ResultTextBox.Text += TreeNode.PrintNode(parser.SyntaxTree, "");
-            ResultTextBox.Text += parser.Error;
-            ResultTextBox.Text += "Analysis done!";
-            StopButton.IsEnabled = false;
-            if (TreeViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
+            ResultTextBox.Text = "···········Parser Analyzing...\n\n";
+            if (lexer.ErrorInfoStrb.ToString().Length == 0)
             {
-                TreeViewArea.Visibility = Visibility.Collapsed;
-                Splitter.Visibility = Visibility.Collapsed;
-                return;
+                parser.Tokens = lexer.Words;
+                var threadStart = new ThreadStart(parser.SyntaxAnalyze);
+                _thread = new Thread(threadStart) { IsBackground = true };
+                _thread.Start();
+                while (_thread.IsAlive)
+                    Thread.Sleep(10);
+                if (!parser.IsParseError && parser.SyntaxTree != null)
+                    ResultTextBox.Text += TreeNode.PrintNode(parser.SyntaxTree, "");
+                ResultTextBox.Text += parser.Error;
+                ResultTextBox.Text += "\n···········Syntactic Analysis done!";
+                StopButton.IsEnabled = false;
+                if (TreeViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
+                {
+                    TreeViewArea.Visibility = Visibility.Collapsed;
+                    Splitter.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                TreeViewArea.Visibility = Visibility.Visible;
+                Splitter.Visibility = Visibility.Visible;
             }
-            TreeViewArea.Visibility = Visibility.Visible;
-            Splitter.Visibility = Visibility.Visible;
+            else
+            {
+                ResultTextBox.Text += lexer.ErrorInfoStrb.ToString();
+                ResultTextBox.Text += "\n···········Lexical Analysis Failed!\n";
+                ResultTextBox.Text += "\n···········Syntactic Analysis Not Implemented!";
+            }
+            
         }
 
         private void RunInterpreterButton_Click(object sender, RoutedEventArgs e)

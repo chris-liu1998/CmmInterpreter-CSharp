@@ -50,5 +50,6 @@
         public const int MulAssign = 44; // *=
         public const int DivAssign = 45; // /=
         public const int ModAssign = 46; // %=
+        public const int CharVal = 47; //char型值
     }
 }

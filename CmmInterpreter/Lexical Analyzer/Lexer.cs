@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CmmInterpreter.Lexical_Analyzer
 {
@@ -43,7 +42,7 @@ namespace CmmInterpreter.Lexical_Analyzer
          public string PrintResult ()
         {
             var strb = new StringBuilder ();
-            if (ErrorInfoStrb != null)
+            if (ErrorInfoStrb.ToString().Length != 0)
                 strb.Append(ErrorInfoStrb);
             foreach (var token in Words)
                 strb.Append(token);
@@ -534,6 +533,61 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             }
+                        case '\'':
+                            word.Append(oneChar);
+                            try
+                            {
+                                oneChar = Chars[++i];
+                                word.Append(oneChar);
+                                if (oneChar == '\'')
+                                {
+                                    Words.AddLast(new Token("''", TokenType.CharVal, lineNo));
+                                    Words.Last.Value.StartPos = startPos;
+                                }
+                                else if (oneChar == '\\')
+                                {
+                                    oneChar = Chars[++i];
+                                    word.Append(oneChar);
+                                    if (oneChar != 'r' && oneChar != 't' 
+                                                       && oneChar != 'n' && oneChar != '\\' && oneChar != '\'')
+                                    {
+                                        throw new IndexOutOfRangeException();
+                                    }
+                                    oneChar = Chars[++i];
+                                    if (oneChar == '\'')
+                                    {
+                                        word.Append(oneChar);
+                                        Words.AddLast(new Token(word.ToString(), TokenType.CharVal, lineNo));
+                                        Words.Last.Value.StartPos = startPos;
+                                    }
+                                    else
+                                    {
+                                        i--;
+                                        throw new IndexOutOfRangeException();
+                                    }
+                                }
+                                else
+                                {
+                                    oneChar = Chars[++i];
+                                    if(oneChar == '\'')
+                                    {
+                                        word.Append(oneChar);
+                                        Words.AddLast(new Token(word.ToString(), TokenType.CharVal, lineNo));
+                                    }
+                                    else
+                                    {
+                                        i--;
+                                        throw new IndexOutOfRangeException();
+                                    }
+                                }
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                Words.AddLast(new Token(word.ToString(), TokenType.Error, lineNo));
+                                Words.Last.Value.StartPos = startPos;
+                                ErrorInfoStrb.Append("ERROR : Line: ").Append(lineNo).Append(" 非法字符'").Append(word).Append("'. ").Append("(").Append(word).Append(")\n");
+                            }
+                            break;
                         default:
                             Words.AddLast (new Token (word.Append (oneChar).ToString (), TokenType.Error, lineNo));
                             Words.Last.Value.StartPos = startPos;
