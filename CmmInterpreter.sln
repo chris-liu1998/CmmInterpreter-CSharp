@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmmInterpreter", "CmmInterpreter\CmmInterpreter.csproj", "{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		AppVeyor|Any CPU = AppVeyor|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.AppVeyor|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.AppVeyor|Any CPU.Build.0 = Release|Any CPU
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9F0E65-2F68-4D97-88AD-FF4076A05DE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13B6AB2E-AD7B-4424-A290-9FE30B0F9668}
+	EndGlobalSection
+EndGlobal
