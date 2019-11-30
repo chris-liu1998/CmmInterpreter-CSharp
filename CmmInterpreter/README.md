@@ -6,7 +6,7 @@
 
 ll(1)文法  
 >
-> NO FUNCTION\ELSE_IF\POINTER YET
+> NO FUNCTION\ELSE_IF\POINTER YET（Maybe later）
 >
 > + program -> stmt-sequence  
 > + stmt-sequence -> statement stmt-sequence | ε
