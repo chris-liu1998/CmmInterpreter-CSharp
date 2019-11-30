@@ -549,7 +549,8 @@ namespace CmmInterpreter.Lexical_Analyzer
                                     oneChar = Chars[++i];
                                     word.Append(oneChar);
                                     if (oneChar != 'r' && oneChar != 't' 
-                                                       && oneChar != 'n' && oneChar != '\\' && oneChar != '\'')
+                                                       && oneChar != 'n' && oneChar != '\\' 
+                                                       && oneChar != '\'' && oneChar != '0')
                                     {
                                         throw new IndexOutOfRangeException();
                                     }

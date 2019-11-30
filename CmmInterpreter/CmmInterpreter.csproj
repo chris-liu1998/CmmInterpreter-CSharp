@@ -78,6 +78,8 @@
     <Compile Include="Semantic Analyzer\Quadruple.cs" />
     <Compile Include="Semantic Analyzer\Symbol.cs" />
     <Compile Include="Semantic Analyzer\SymbolTable.cs" />
+    <Compile Include="Semantic Analyzer\SymbolType.cs" />
+    <Compile Include="Semantic Analyzer\Value.cs" />
     <Compile Include="Syntactic Analyzer\Parser.cs" />
     <Compile Include="Syntactic Analyzer\StmtType.cs" />
     <Compile Include="Syntactic Analyzer\TreeNode.cs" />
