@@ -26,65 +26,65 @@ namespace CmmInterpreter.Syntactic_Analyzer
         {
             switch (Type)
             {
-                case StmtType.IF_ST:
+                case StmtType.IfStmt:
                     return "IF_STATEMENT";
-                case StmtType.ELSE_ST:
+                case StmtType.ElseStmt:
                     return "ELSE_STATEMENT";
-                case StmtType.WHILE_ST:
+                case StmtType.WhileStmt:
                     return "WHILE_STATEMENT";
-                case StmtType.PRINT_ST:
+                case StmtType.PrintStmt:
                     return "PRINT_STATEMENT";
-                case StmtType.SCAN_ST:
+                case StmtType.ScanStmt:
                     return "SCAN_STATEMENT";
-                case StmtType.INIT:
+                case StmtType.Init:
                     return "INITIAL_STATEMENT";
-                case StmtType.DEC_ST:
+                case StmtType.DecStmt:
                     return "DEC_STATEMENT";
-                case StmtType.STBLOCK:
+                case StmtType.StmtBlock:
                     return "STATEMENT_BLOCK";
-                case StmtType.ASSIGN_ST:
+                case StmtType.AssignStmt:
                     return "ASSIGN_STATEMENT";
-                case StmtType.JUMP_ST:
+                case StmtType.JumpSt:
                     return "JUMP_STATEMENT";
-                case StmtType.VALUE_LIST:
+                case StmtType.ValueList:
                     return "VALUE_LIST";
-                case StmtType.VAR_LIST:
+                case StmtType.VarList:
                     return "VARIABLE_LIST";
-                case StmtType.ID:
+                case StmtType.Id:
                     return "IDENTIFIER";
-                case StmtType.MORE_VALUE:
+                case StmtType.MoreValue:
                     return "MORE_VALUE";
-                case StmtType.EXP:
+                case StmtType.Exp:
                     return "EXP";
-                case StmtType.BREAK:
+                case StmtType.Break:
                     return "BREAK";
-                case StmtType.CONTINUE:
+                case StmtType.Continue:
                     return "CONTINUE";
-                case StmtType.OPR:
+                case StmtType.Operator:
                     return "OPERATOR";
-                case StmtType.VAR:
+                case StmtType.Var:
                     return "VAR";
-                case StmtType.FACTOR:
+                case StmtType.Factor:
                     return "FACTOR";
-                case StmtType.MORE_FACTOR:
+                case StmtType.MoreFactor:
                     return "MORE_FACTOR";
-                case StmtType.MORE_TERM:
+                case StmtType.MoreTerm:
                     return "MORE_TERM";
-                case StmtType.TERM:
+                case StmtType.Term:
                     return "TERM";
-                case StmtType.MORE_ADD_EXP:
+                case StmtType.MoreAddExp:
                     return "MORE_ADDITIVE_EXP";
-                case StmtType.MORE_LOGIC_EXP:
+                case StmtType.MoreLogicExp:
                     return "MORE_EXP";
-                case StmtType.VALUE:
+                case StmtType.Value:
                     return "VALUE";
-                case StmtType.PROGRAM:
+                case StmtType.Program:
                     return "PROGRAM";
-                case StmtType.STMT_SEQ:
+                case StmtType.StmtSeq:
                     return "STATEMENT_SEQ";
-                case StmtType.NONE:
+                case StmtType.None:
                     return "NONE";
-                case StmtType.NULL:
+                case StmtType.Null:
                     return "NULL";
                 default:
                     return "UNKNOWN";

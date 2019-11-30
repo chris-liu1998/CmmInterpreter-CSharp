@@ -73,6 +73,8 @@
     </ApplicationDefinition>
     <Compile Include="Exceptions\InterpretException.cs" />
     <Compile Include="Exceptions\ParseException.cs" />
+    <Compile Include="Semantic Analyzer\Instruction.cs" />
+    <Compile Include="Semantic Analyzer\Interpreter.cs" />
     <Compile Include="Semantic Analyzer\Quadruple.cs" />
     <Compile Include="Semantic Analyzer\SymbolTable.cs" />
     <Compile Include="Syntactic Analyzer\Parser.cs" />

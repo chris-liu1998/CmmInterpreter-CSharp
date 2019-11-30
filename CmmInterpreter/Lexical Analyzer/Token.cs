@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CmmInterpreter.Lexical_Analyzer
+﻿namespace CmmInterpreter.Lexical_Analyzer
 {
     public class Token
     {
@@ -29,87 +23,87 @@ namespace CmmInterpreter.Lexical_Analyzer
         {
             switch (Type)
             {
-                case TokenType.INT:
+                case TokenType.Int:
                     return "INT";
-                case TokenType.INT_VAL:
+                case TokenType.IntVal:
                     return "INT_VALUE";
-                case TokenType.REAL:
+                case TokenType.Real:
                     return "REAL";
-                case TokenType.REAL_VAL:
+                case TokenType.RealVal:
                     return "REAL_VALUE";
-                case TokenType.ID:
+                case TokenType.Id:
                     return "Identifier";
-                case TokenType.END:
+                case TokenType.End:
                     return ";";
-                case TokenType.ASSIGN:
+                case TokenType.Assign:
                     return "=";
-                case TokenType.LEFT_P:
+                case TokenType.LeftP:
                     return "(";
-                case TokenType.RIGHT_P:
+                case TokenType.RightP:
                     return ")";
-                case TokenType.RIGHT_BRA:
+                case TokenType.RightBra:
                     return "}";
-                case TokenType.LEFT_BRA:
+                case TokenType.LeftBra:
                     return "{";
-                case TokenType.LEFT_BRK:
+                case TokenType.LeftBrk:
                     return "[";
-                case TokenType.RIGHT_BRK:
+                case TokenType.RightBrk:
                     return "]";
-                case TokenType.WHILE:
+                case TokenType.While:
                     return "WHILE";
-                case TokenType.IF:
+                case TokenType.If:
                     return "IF";
-                case TokenType.ELSE:
+                case TokenType.Else:
                     return "ELSE";
-                case TokenType.NEQ:
+                case TokenType.Neq:
                     return "NOT_EQ";
-                case TokenType.EQ:
+                case TokenType.Eq:
                     return "EQ";
-                case TokenType.MOD:
+                case TokenType.Mod:
                     return "MOD";
-                case TokenType.MOD_ASSIGN:
+                case TokenType.ModAssign:
                     return "MOD_ASSIGN";
-                case TokenType.MUL_ASSIGN:
+                case TokenType.MulAssign:
                     return "MUL_ASSIGN";
-                case TokenType.DIV_ASSIGN:
+                case TokenType.DivAssign:
                     return "DIV_ASSIGN";
-                case TokenType.PLUS_ASSIGN:
+                case TokenType.PlusAssign:
                     return "PLUS_ASSIGN";
-                case TokenType.MINUS_ASSIGN:
+                case TokenType.MinusAssign:
                     return "MINUS_ASSIGN";
-                case TokenType.GREATER_EQ:
+                case TokenType.GreaterEq:
                     return "GREATER_EQ";
-                case TokenType.LESS_EQ:
+                case TokenType.LessEq:
                     return "LESS_EQ";
-                case TokenType.LESS:
+                case TokenType.Less:
                     return "LESS";
-                case TokenType.GREATER:
+                case TokenType.Greater:
                     return "GREATER";
-                case TokenType.BREAK:
+                case TokenType.Break:
                     return "BREAK";
-                case TokenType.CONTINUE:
+                case TokenType.Continue:
                     return "CONTINUE";
-                case TokenType.PLUS:
+                case TokenType.Plus:
                     return "PLUS";
-                case TokenType.MINUS:
+                case TokenType.Minus:
                     return "MINUS";
-                case TokenType.MUL:
+                case TokenType.Mul:
                     return "MULTIPLY";
-                case TokenType.DIV:
+                case TokenType.Div:
                     return "DIVIDE";
-                case TokenType.AND:
+                case TokenType.And:
                     return "AND";
-                case TokenType.OR:
+                case TokenType.Or:
                     return "OR";
-                case TokenType.NOT:
+                case TokenType.Not:
                     return "NOT";
-                case TokenType.PLUS_PLUS:
+                case TokenType.PlusPlus:
                     return "SELF_INC";
-                case TokenType.MINUS_MINUS:
+                case TokenType.MinusMinus:
                     return "SELF_DEC";
-                case TokenType.NULL:
+                case TokenType.Null:
                     return "NULL";
-                case TokenType.ERROR:
+                case TokenType.Error:
                     return "ERROR";
                 default:
                     return "NONE";

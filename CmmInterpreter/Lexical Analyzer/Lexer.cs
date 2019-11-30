@@ -10,7 +10,7 @@ namespace CmmInterpreter.Lexical_Analyzer
     {
         private readonly string[] _keyWords = {"if", "else", "while", "int", "real", "NULL",
             "char", "for", "break", "continue", "print", "scan"};
-        private StringBuilder ErrorInfoStrb { get; set; }
+        public StringBuilder ErrorInfoStrb { get; set; }
         public LinkedList<Token> Words { get; set; }
         public char[] Chars { get; set; }
 
@@ -93,51 +93,51 @@ namespace CmmInterpreter.Lexical_Analyzer
                         switch (word.ToString ())
                         {
                             case "int":
-                                Words.AddLast (new Token (word.ToString (), TokenType.INT, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Int, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "if":
-                                Words.AddLast (new Token (word.ToString (), TokenType.IF, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.If, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "else":
-                                Words.AddLast (new Token (word.ToString (), TokenType.ELSE, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Else, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "real":
-                                Words.AddLast (new Token (word.ToString (), TokenType.REAL, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Real, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "while":
-                                Words.AddLast (new Token (word.ToString (), TokenType.WHILE, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.While, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "NULL":
-                                Words.AddLast (new Token (word.ToString (), TokenType.NULL, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Null, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "char":
-                                Words.AddLast (new Token (word.ToString (), TokenType.CHAR, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Char, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "for":
-                                Words.AddLast (new Token (word.ToString (), TokenType.FOR, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.For, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "break":
-                                Words.AddLast (new Token (word.ToString (), TokenType.BREAK, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Break, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "continue":
-                                Words.AddLast (new Token (word.ToString (), TokenType.CONTINUE, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Continue, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "print":
-                                Words.AddLast (new Token (word.ToString (), TokenType.PRINT, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Print, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             case "scan":
-                                Words.AddLast (new Token (word.ToString (), TokenType.SCAN, lineNo));
+                                Words.AddLast (new Token (word.ToString (), TokenType.Scan, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                         }
@@ -146,12 +146,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                     {  //是普通标识符
                         if (word.Length <= 64)
                         {
-                            Words.AddLast (new Token (word.ToString (), TokenType.ID, lineNo));// 自定义标识符不能超过64个字符
+                            Words.AddLast (new Token (word.ToString (), TokenType.Id, lineNo));// 自定义标识符不能超过64个字符
                             Words.Last.Value.StartPos = startPos;
                         }
                         else
                         {
-                            Words.AddLast (new Token (word.ToString (), TokenType.ERROR, lineNo));
+                            Words.AddLast (new Token (word.ToString (), TokenType.Error, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 标识符不得超过64个字符. ").Append ("(").Append (word).Append (")\n");
                         }
@@ -194,7 +194,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                     //                is_neg = false;
                     if (isError)
                     {
-                        Words.AddLast (new Token (word.ToString (), TokenType.ERROR, lineNo));
+                        Words.AddLast (new Token (word.ToString (), TokenType.Error, lineNo));
                         Words.Last.Value.StartPos = startPos;
                         ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 非法数字. ").Append ("(").Append (word).Append (")\n");
                     }
@@ -202,12 +202,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                     {
                         if (realFlag)
                         {
-                            Words.AddLast (new Token (word.ToString (), TokenType.REAL_VAL, lineNo));  //实型
+                            Words.AddLast (new Token (word.ToString (), TokenType.RealVal, lineNo));  //实型
                             Words.Last.Value.StartPos = startPos;
                         }
                         else
                         {
-                            Words.AddLast (new Token (word.ToString (), TokenType.INT_VAL, lineNo));// 整型
+                            Words.AddLast (new Token (word.ToString (), TokenType.IntVal, lineNo));// 整型
                             Words.Last.Value.StartPos = startPos;
                         }
                     }
@@ -223,19 +223,19 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '=')
                                 {   //检测%=
-                                    Words.AddLast (new Token ("%=", TokenType.MOD_ASSIGN, lineNo));
+                                    Words.AddLast (new Token ("%=", TokenType.ModAssign, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("%", TokenType.MOD, lineNo));
+                                    Words.AddLast (new Token ("%", TokenType.Mod, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("%", TokenType.MOD, lineNo));
+                                Words.AddLast (new Token ("%", TokenType.Mod, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                             }
                             break;
@@ -245,17 +245,17 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '+')
                                 {   //检测++
-                                    Words.AddLast (new Token ("++", TokenType.PLUS_PLUS, lineNo));
+                                    Words.AddLast (new Token ("++", TokenType.PlusPlus, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else if (oneChar == '=')
                                 {//检测+=
-                                    Words.AddLast (new Token ("+=", TokenType.PLUS_ASSIGN, lineNo));
+                                    Words.AddLast (new Token ("+=", TokenType.PlusAssign, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("+", TokenType.PLUS, lineNo));
+                                    Words.AddLast (new Token ("+", TokenType.Plus, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     //errorInfoStrb.Append("ERROR : Line: ").Append(lineNo).Append(" 非法字符'+'. ").Append("(").Append(word.ToString()).Append(")\n");
                                     i--;
@@ -263,7 +263,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("+", TokenType.PLUS, lineNo));
+                                Words.AddLast (new Token ("+", TokenType.Plus, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                             }
                             break;
@@ -273,17 +273,17 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '-')
                                 {   //检测--
-                                    Words.AddLast (new Token ("--", TokenType.MINUS_MINUS, lineNo));
+                                    Words.AddLast (new Token ("--", TokenType.MinusMinus, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else if (oneChar == '=')
                                 { //检测-=
-                                    Words.AddLast (new Token ("-=", TokenType.MINUS_ASSIGN, lineNo));
+                                    Words.AddLast (new Token ("-=", TokenType.MinusAssign, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("-", TokenType.MINUS, lineNo));
+                                    Words.AddLast (new Token ("-", TokenType.Minus, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     //errorInfoStrb.Append("ERROR : Line: ").Append(lineNo).Append(" 非法字符'-'. ").Append("(").Append(word.ToString()).Append(")\n");
                                     i--;
@@ -291,7 +291,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("-", TokenType.MINUS, lineNo));
+                                Words.AddLast (new Token ("-", TokenType.Minus, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                             }
                             break;
@@ -301,56 +301,56 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '=')
                                 {   //检测*=
-                                    Words.AddLast (new Token ("*=", TokenType.MUL_ASSIGN, lineNo));
+                                    Words.AddLast (new Token ("*=", TokenType.MulAssign, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("*", TokenType.MUL, lineNo));
+                                    Words.AddLast (new Token ("*", TokenType.Mul, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("*", TokenType.MUL, lineNo));
+                                Words.AddLast (new Token ("*", TokenType.Mul, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                             }
                             break;
                         case '(':
-                            Words.AddLast (new Token ("(", TokenType.LEFT_P, lineNo));
+                            Words.AddLast (new Token ("(", TokenType.LeftP, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case ')':
-                            Words.AddLast (new Token (")", TokenType.RIGHT_P, lineNo));
+                            Words.AddLast (new Token (")", TokenType.RightP, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case '[':
-                            Words.AddLast (new Token ("[", TokenType.LEFT_BRK, lineNo));
+                            Words.AddLast (new Token ("[", TokenType.LeftBrk, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case ']':
-                            Words.AddLast (new Token ("]", TokenType.RIGHT_BRK, lineNo));
+                            Words.AddLast (new Token ("]", TokenType.RightBrk, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case '{':
-                            Words.AddLast (new Token ("{", TokenType.LEFT_BRA, lineNo));
+                            Words.AddLast (new Token ("{", TokenType.LeftBra, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case '!':
-                            Words.AddLast (new Token ("!", TokenType.NOT, lineNo));
+                            Words.AddLast (new Token ("!", TokenType.Not, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case '}':
-                            Words.AddLast (new Token ("}", TokenType.RIGHT_BRA, lineNo));
+                            Words.AddLast (new Token ("}", TokenType.RightBra, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case ';':
-                            Words.AddLast (new Token (";", TokenType.END, lineNo));
+                            Words.AddLast (new Token (";", TokenType.End, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case ',':
-                            Words.AddLast (new Token (",", TokenType.COMMA, lineNo));
+                            Words.AddLast (new Token (",", TokenType.Comma, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             break;
                         case '&':
@@ -359,12 +359,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '&')
                                 {   //检测&&
-                                    Words.AddLast (new Token ("&&", TokenType.AND, lineNo));
+                                    Words.AddLast (new Token ("&&", TokenType.And, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("&", TokenType.ERROR, lineNo));
+                                    Words.AddLast (new Token ("&", TokenType.Error, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 非法字符'&'. ").Append ("(").Append (word).Append (")\n");
                                     i--;
@@ -372,7 +372,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("&", TokenType.ERROR, lineNo));
+                                Words.AddLast (new Token ("&", TokenType.Error, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 非法字符'&'. ").Append ("(").Append (word).Append (")\n");
                             }
@@ -383,12 +383,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '|')
                                 {  //检测||
-                                    Words.AddLast (new Token ("||", TokenType.OR, lineNo));
+                                    Words.AddLast (new Token ("||", TokenType.Or, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {
-                                    Words.AddLast (new Token ("|", TokenType.ERROR, lineNo));
+                                    Words.AddLast (new Token ("|", TokenType.Error, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 非法字符'|'. ").Append ("(").Append (word).Append (")\n");
                                     i--;
@@ -396,7 +396,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("|", TokenType.ERROR, lineNo));
+                                Words.AddLast (new Token ("|", TokenType.Error, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                             }
                             break;
@@ -406,17 +406,17 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '>')   //不等于
                                 {
-                                    Words.AddLast (new Token ("<>", TokenType.NEQ, lineNo));
+                                    Words.AddLast (new Token ("<>", TokenType.Neq, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else if (oneChar == '=')
                                 { //小于等于
-                                    Words.AddLast (new Token ("<=", TokenType.LESS_EQ, lineNo));
+                                    Words.AddLast (new Token ("<=", TokenType.LessEq, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {  //小于
-                                    Words.AddLast (new Token ("<", TokenType.LESS, lineNo));
+                                    Words.AddLast (new Token ("<", TokenType.Less, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
@@ -424,7 +424,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("<", TokenType.LESS, lineNo));
+                                Words.AddLast (new Token ("<", TokenType.Less, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             }
@@ -435,12 +435,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '=')
                                 { //大于等于
-                                    Words.AddLast (new Token (">=", TokenType.GREATER_EQ, lineNo));
+                                    Words.AddLast (new Token (">=", TokenType.GreaterEq, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {   //大于
-                                    Words.AddLast (new Token (">", TokenType.GREATER, lineNo));
+                                    Words.AddLast (new Token (">", TokenType.Greater, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
@@ -448,7 +448,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token (">", TokenType.GREATER, lineNo));
+                                Words.AddLast (new Token (">", TokenType.Greater, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             }
@@ -458,12 +458,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 oneChar = Chars[++i];
                                 if (oneChar == '=')
                                 {  //等于
-                                    Words.AddLast (new Token ("==", TokenType.EQ, lineNo));
+                                    Words.AddLast (new Token ("==", TokenType.Eq, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {  //赋值
-                                    Words.AddLast (new Token ("=", TokenType.ASSIGN, lineNo));
+                                    Words.AddLast (new Token ("=", TokenType.Assign, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
@@ -471,7 +471,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("=", TokenType.ASSIGN, lineNo));
+                                Words.AddLast (new Token ("=", TokenType.Assign, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             }
@@ -517,12 +517,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                                 }
                                 else if (oneChar == '=')
                                 {
-                                    Words.AddLast (new Token ("/=", TokenType.DIV_ASSIGN, lineNo)); //检测/*
+                                    Words.AddLast (new Token ("/=", TokenType.DivAssign, lineNo)); //检测/*
                                     Words.Last.Value.StartPos = startPos;
                                 }
                                 else
                                 {  //除法
-                                    Words.AddLast (new Token ("/", TokenType.DIV, lineNo));
+                                    Words.AddLast (new Token ("/", TokenType.Div, lineNo));
                                     Words.Last.Value.StartPos = startPos;
                                     i--;
                                 }
@@ -530,12 +530,12 @@ namespace CmmInterpreter.Lexical_Analyzer
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Words.AddLast (new Token ("/", TokenType.DIV, lineNo));
+                                Words.AddLast (new Token ("/", TokenType.Div, lineNo));
                                 Words.Last.Value.StartPos = startPos;
                                 break;
                             }
                         default:
-                            Words.AddLast (new Token (word.Append (oneChar).ToString (), TokenType.ERROR, lineNo));
+                            Words.AddLast (new Token (word.Append (oneChar).ToString (), TokenType.Error, lineNo));
                             Words.Last.Value.StartPos = startPos;
                             ErrorInfoStrb.Append ("ERROR : Line: ").Append (lineNo).Append (" 非法字符'").Append (word).Append ("'. ").Append ("(").Append (word).Append (")\n");
                             break;

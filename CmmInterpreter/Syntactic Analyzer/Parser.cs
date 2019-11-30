@@ -15,8 +15,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
     {
         public Token CurrentToken { get; set; }
         private PeekableEnumerator<Token> _enumerator;
-        private int BlockLevel { get; set; }
-        private StringBuilder ErrorInfo { get; set; }
+        public int BlockLevel { get; set; }
+        private StringBuilder _errorInfo;
         public LinkedList<Token> Tokens { get; set; }
         public TreeNode SyntaxTree { get; set; }
         public bool IsParseError { get; set; }
@@ -31,14 +31,14 @@ namespace CmmInterpreter.Syntactic_Analyzer
             CurrentToken = Tokens.First();
             try
             {
-                SyntaxTree = new TreeNode(StmtType.PROGRAM);
-                ErrorInfo = new StringBuilder();
+                SyntaxTree = new TreeNode(StmtType.Program);
+                _errorInfo = new StringBuilder();
                 _enumerator = Tokens.GetEnumerator().ToPeekable();
                 BlockLevel = 0;
                 SyntaxTree.LeftNode = ParseStmtSeq();
 
-                if (ErrorInfo.Length != 0)
-                    throw new ParseException(ErrorInfo.ToString());
+                if (_errorInfo.Length != 0)
+                    throw new ParseException(_errorInfo.ToString());
             }
             catch (ParseException e)
             {
@@ -51,8 +51,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
         private TreeNode ParseStmtSeq()
         {
             if (_enumerator.Peek == null) return null;
-            if ((BlockLevel != 0) && (BlockLevel <= 0 || CheckNextTokenType(TokenType.RIGHT_BRA))) return null;
-            var node = new TreeNode(StmtType.STMT_SEQ) {LeftNode = ParseStmt(), MiddleNode = ParseStmtSeq()};
+            if ((BlockLevel != 0) && (BlockLevel <= 0 || CheckNextTokenType(TokenType.RightBra))) return null;
+            var node = new TreeNode(StmtType.StmtSeq) {LeftNode = ParseStmt(), MiddleNode = ParseStmtSeq()};
             return node;
         }
 
@@ -60,25 +60,25 @@ namespace CmmInterpreter.Syntactic_Analyzer
         { //处理语句或语句块
             switch (GetNextTokenType())
             {
-                case TokenType.IF:
+                case TokenType.If:
                     return ParseIfStmt();  //转向处理if语句
-                case TokenType.END:
-                    ConsumeNextToken(TokenType.END);
+                case TokenType.End:
+                    ConsumeNextToken(TokenType.End);
                     return null;  //转向处理空语句
-                case TokenType.WHILE:
+                case TokenType.While:
                     return ParseWhileStmt();  //转向处理while语句
-                case TokenType.INT:
-                case TokenType.REAL:
-                case TokenType.CHAR:
+                case TokenType.Int:
+                case TokenType.Real:
+                case TokenType.Char:
                     return ParseDeclareStmt();  //转向处理声明语句
-                case TokenType.PRINT:
+                case TokenType.Print:
                     return ParsePrintStmt();  //转向处理打印语句
-                case TokenType.SCAN:
+                case TokenType.Scan:
                     return ParseScanStmt();   //转向处理扫描语句
-                case TokenType.LEFT_BRA:
+                case TokenType.LeftBra:
                     return ParseStmtBlock();  //转向处理语句块
-                case TokenType.BREAK:
-                case TokenType.CONTINUE:
+                case TokenType.Break:
+                case TokenType.Continue:
                     return ParseJumpStmt();  //转向处理跳转语句
                 default:
                     return ParseAssignStmt();  //转向处理赋值语句
@@ -94,57 +94,57 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseStmtBlock()
         {
-            var node = new TreeNode(StmtType.STBLOCK);
-            ConsumeNextToken(TokenType.LEFT_BRA);
+            var node = new TreeNode(StmtType.StmtBlock);
+            ConsumeNextToken(TokenType.LeftBra);
             BlockLevel++;
             node.LeftNode = ParseStmtSeq();
-            ConsumeNextToken(TokenType.RIGHT_BRA);
+            ConsumeNextToken(TokenType.RightBra);
             BlockLevel--;
             return node;
         }
 
         private TreeNode ParseIfStmt()
         {
-            var node = new TreeNode(StmtType.IF_ST);
-            ConsumeNextToken(TokenType.IF);
-            ConsumeNextToken(TokenType.LEFT_P);
+            var node = new TreeNode(StmtType.IfStmt);
+            ConsumeNextToken(TokenType.If);
+            ConsumeNextToken(TokenType.LeftP);
             node.LeftNode = ParseAssignExp();
-            ConsumeNextToken(TokenType.RIGHT_P);
+            ConsumeNextToken(TokenType.RightP);
             node.MiddleNode = ParseIfBlock();
             return node;
         }
 
         private TreeNode ParseIfBlock()
         {
-            if (CheckNextTokenType(TokenType.END))
+            if (CheckNextTokenType(TokenType.End))
             {
-                ConsumeNextToken(TokenType.END);
+                ConsumeNextToken(TokenType.End);
                 return null;
             }
-            if (CheckNextTokenType(TokenType.ELSE))
+            if (CheckNextTokenType(TokenType.Else))
             {
                 return ParseElseStmt();
             }
-            var node = new TreeNode(StmtType.IF_BLOCK) { LeftNode = ParseStmt(), MiddleNode = ParseElseStmt() };
+            var node = new TreeNode(StmtType.IfBlock) { LeftNode = ParseStmt(), MiddleNode = ParseElseStmt() };
             return node;
         }
 
         private TreeNode ParseElseStmt()
         {
-            if (!CheckNextTokenType(TokenType.ELSE)) return null;
-            var node = new TreeNode(StmtType.ELSE_ST);
-            ConsumeNextToken(TokenType.ELSE);
+            if (!CheckNextTokenType(TokenType.Else)) return null;
+            var node = new TreeNode(StmtType.ElseStmt);
+            ConsumeNextToken(TokenType.Else);
             node.LeftNode = ParseStmt();
             return node;
         }
 
         private TreeNode ParseWhileStmt()
         {
-            var node = new TreeNode(StmtType.WHILE_ST);
-            ConsumeNextToken(TokenType.WHILE);
-            ConsumeNextToken(TokenType.LEFT_P);
+            var node = new TreeNode(StmtType.WhileStmt);
+            ConsumeNextToken(TokenType.While);
+            ConsumeNextToken(TokenType.LeftP);
             node.LeftNode = ParseAssignExp();
-            ConsumeNextToken(TokenType.RIGHT_P);
+            ConsumeNextToken(TokenType.RightP);
             node.MiddleNode = ParseStmt();
             return node;
         }
@@ -152,20 +152,20 @@ namespace CmmInterpreter.Syntactic_Analyzer
         private TreeNode ParseAssignStmt()
         {
             var node = ParseAssignExp();
-            ConsumeNextToken(TokenType.END);
+            ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParseAssignExp()
         {
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseLogicOrExp(), MiddleNode = ParseMoreLogicOrExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseLogicOrExp(), MiddleNode = ParseMoreLogicOrExp() };
             return node;
         }
 
         private TreeNode ParseMoreLogicOrExp()
         {
-            if (!CheckNextTokenType(TokenType.ASSIGN)) return null;
-            var node = new TreeNode(StmtType.MORE_LOGIC_EXP)
+            if (!CheckNextTokenType(TokenType.Assign)) return null;
+            var node = new TreeNode(StmtType.MoreLogicExp)
             {
                 LeftNode = GetAssignOp(),
                 MiddleNode = ParseLogicOrExp(),
@@ -179,50 +179,50 @@ namespace CmmInterpreter.Syntactic_Analyzer
             _enumerator.MoveNext();
             CurrentToken = _enumerator.Current;
             var type = CurrentToken.Type;
-            var node = new TreeNode(StmtType.JUMP_ST) { DataType = type, Value = CurrentToken.Value };
-            ConsumeNextToken(TokenType.END);
+            var node = new TreeNode(StmtType.JumpSt) { DataType = type, Value = CurrentToken.Value };
+            ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParseScanStmt()
         { //处理scan语句
-            var node = new TreeNode(StmtType.SCAN_ST);
-            ConsumeNextToken(TokenType.SCAN);
-            ConsumeNextToken(TokenType.LEFT_P);
+            var node = new TreeNode(StmtType.ScanStmt);
+            ConsumeNextToken(TokenType.Scan);
+            ConsumeNextToken(TokenType.LeftP);
             node.LeftNode = ParseVariable();
-            ConsumeNextToken(TokenType.RIGHT_P);
-            ConsumeNextToken(TokenType.END);
+            ConsumeNextToken(TokenType.RightP);
+            ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParsePrintStmt()
         { //处理print语句
-            var node = new TreeNode(StmtType.PRINT_ST);
-            ConsumeNextToken(TokenType.PRINT);
-            ConsumeNextToken(TokenType.LEFT_P);
+            var node = new TreeNode(StmtType.PrintStmt);
+            ConsumeNextToken(TokenType.Print);
+            ConsumeNextToken(TokenType.LeftP);
             node.LeftNode = ParseAssignExp();
-            ConsumeNextToken(TokenType.RIGHT_P);
-            ConsumeNextToken(TokenType.END);
+            ConsumeNextToken(TokenType.RightP);
+            ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParseDeclareStmt()
         {
-            var node = new TreeNode(StmtType.DEC_ST);
-            if (CheckNextTokenType(TokenType.INT, TokenType.REAL, TokenType.CHAR))
+            var node = new TreeNode(StmtType.DecStmt);
+            if (CheckNextTokenType(TokenType.Int, TokenType.Real, TokenType.Char))
             {
                 var type = GetNextTokenType();
                 node.DataType = type;
                 ConsumeNextToken(type);
             }
             node.LeftNode = ParseVariableList();
-            ConsumeNextToken(TokenType.END);
+            ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParseVariableList()
         {
-            var node = new TreeNode(StmtType.VAR_LIST)
+            var node = new TreeNode(StmtType.VarList)
             {
                 LeftNode = ParseVariable(),
                 MiddleNode = ParseInitializer(),
@@ -233,37 +233,37 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseVariable()
         {
-            var node = new TreeNode(StmtType.VAR) { LeftNode = GetIdentifier(), MiddleNode = ParseArrayDim() };
+            var node = new TreeNode(StmtType.Var) { LeftNode = GetIdentifier(), MiddleNode = ParseArrayDim() };
             return node;
         }
 
         private TreeNode ParseArrayDim()
         {
-            if (!CheckNextTokenType(TokenType.LEFT_BRK)) return null;
-            var node = new TreeNode(StmtType.ARRAY_DIM);
-            ConsumeNextToken(TokenType.LEFT_BRK);
+            if (!CheckNextTokenType(TokenType.LeftBrk)) return null;
+            var node = new TreeNode(StmtType.ArrayDim);
+            ConsumeNextToken(TokenType.LeftBrk);
             node.LeftNode = ParseLogicOrExp();
-            ConsumeNextToken(TokenType.RIGHT_BRK);
+            ConsumeNextToken(TokenType.RightBrk);
             node.MiddleNode = ParseArrayDim();
             return node;
         }
 
         private TreeNode ParseLogicOrExp()
         {
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseLogicAndExp(), MiddleNode = ParseMoreLogicAndExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseLogicAndExp(), MiddleNode = ParseMoreLogicAndExp() };
             return node;
         }
 
         private TreeNode ParseLogicAndExp()
         {
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseCompEqExp(), MiddleNode = ParseMoreCompEqExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompEqExp(), MiddleNode = ParseMoreCompEqExp() };
             return node;
         }
 
         private TreeNode ParseMoreCompEqExp()
         {
-            if (!CheckNextTokenType(TokenType.AND)) return null;
-            var node = new TreeNode(StmtType.MORE_COMP_EXP)
+            if (!CheckNextTokenType(TokenType.And)) return null;
+            var node = new TreeNode(StmtType.MoreCompExp)
             {
                 LeftNode = GetLogicOp(),
                 MiddleNode = ParseCompEqExp(),
@@ -274,14 +274,14 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseCompEqExp()
         {
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseCompExp(), MiddleNode = ParseMoreCompExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompExp(), MiddleNode = ParseMoreCompExp() };
             return node;
         }
 
         private TreeNode ParseMoreCompExp()
         {
-            if (!CheckNextTokenType(TokenType.EQ, TokenType.NEQ)) return null;
-            var node = new TreeNode(StmtType.MORE_COMP_EXP)
+            if (!CheckNextTokenType(TokenType.Eq, TokenType.Neq)) return null;
+            var node = new TreeNode(StmtType.MoreCompExp)
             {
                 LeftNode = GetCompOp(),
                 MiddleNode = ParseCompExp(),
@@ -292,14 +292,14 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseCompExp()
         {
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseAdditiveExp(), RightNode = ParseMoreAdditiveExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseAdditiveExp(), RightNode = ParseMoreAdditiveExp() };
             return node;
         }
 
         private TreeNode ParseMoreLogicAndExp()
         {
-            if (!CheckNextTokenType(TokenType.OR)) return null;
-            var node = new TreeNode(StmtType.MORE_LOGIC_EXP)
+            if (!CheckNextTokenType(TokenType.Or)) return null;
+            var node = new TreeNode(StmtType.MoreLogicExp)
             {
                 LeftNode = GetLogicOp(),
                 MiddleNode = ParseLogicAndExp(),
@@ -310,9 +310,9 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseMoreVars()
         {
-            if (!CheckNextTokenType(TokenType.COMMA)) return null;
-            var node = new TreeNode(StmtType.MORE_VAR);
-            ConsumeNextToken(TokenType.COMMA);
+            if (!CheckNextTokenType(TokenType.Comma)) return null;
+            var node = new TreeNode(StmtType.MoreVar);
+            ConsumeNextToken(TokenType.Comma);
             node.LeftNode = ParseVariable();
             node.MiddleNode = ParseInitializer();
             node.RightNode = ParseMoreVars();
@@ -321,31 +321,31 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseInitializer()
         {
-            if (!CheckNextTokenType(TokenType.ASSIGN)) return null;
-            var node = new TreeNode(StmtType.INIT) { LeftNode = GetAssignOp(), MiddleNode = ParseValue() };
+            if (!CheckNextTokenType(TokenType.Assign)) return null;
+            var node = new TreeNode(StmtType.Init) { LeftNode = GetAssignOp(), MiddleNode = ParseValue() };
             return node;
         }
 
         private TreeNode ParseValue()
         {
-            if (!CheckNextTokenType(TokenType.LEFT_BRA)) return ParseLogicOrExp();
-            ConsumeNextToken(TokenType.LEFT_BRA);
+            if (!CheckNextTokenType(TokenType.LeftBra)) return ParseLogicOrExp();
+            ConsumeNextToken(TokenType.LeftBra);
             var node = ParseValueList();
-            ConsumeNextToken(TokenType.RIGHT_BRA);
+            ConsumeNextToken(TokenType.RightBra);
             return node;
         }
 
         private TreeNode ParseValueList()
         {    //赋值列表
-            var node = new TreeNode(StmtType.VALUE_LIST) { LeftNode = ParseValue(), MiddleNode = ParseMoreValue() };
+            var node = new TreeNode(StmtType.ValueList) { LeftNode = ParseValue(), MiddleNode = ParseMoreValue() };
             return node;
         }
 
         private TreeNode ParseMoreValue()
         {
-            if (!CheckNextTokenType(TokenType.COMMA)) return null;
-            var node = new TreeNode(StmtType.MORE_VALUE);
-            ConsumeNextToken(TokenType.COMMA);
+            if (!CheckNextTokenType(TokenType.Comma)) return null;
+            var node = new TreeNode(StmtType.MoreValue);
+            ConsumeNextToken(TokenType.Comma);
             node.LeftNode = ParseValue();
             node.MiddleNode = ParseMoreValue();
             return node;
@@ -353,37 +353,37 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode GetIdentifier()
         {
-            if (CheckNextTokenType(TokenType.ID))
+            if (CheckNextTokenType(TokenType.Id))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.ID) { Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Id) { Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符.\n");
             return null;
         }
 
         private TreeNode GetLogicOp()
         {  //处理逻辑操作符
 
-            if (CheckNextTokenType(TokenType.AND, TokenType.OR, TokenType.NOT))
+            if (CheckNextTokenType(TokenType.And, TokenType.Or, TokenType.Not))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.OPR) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少逻辑运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少逻辑运算符.\n");
             return null;
         }
 
         private TreeNode ParseMoreAdditiveExp()
         {
-            if (!CheckNextTokenType(TokenType.GREATER,
-                TokenType.GREATER_EQ, TokenType.LESS,
-                TokenType.LESS_EQ)) return null;
-            var node = new TreeNode(StmtType.MORE_ADD_EXP)
+            if (!CheckNextTokenType(TokenType.Greater,
+                TokenType.GreaterEq, TokenType.Less,
+                TokenType.LessEq)) return null;
+            var node = new TreeNode(StmtType.MoreAddExp)
             {
                 LeftNode = GetCompOp(),
                 MiddleNode = ParseAdditiveExp(),
@@ -394,30 +394,30 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode GetCompOp()
         {  //逻辑运算符
-            if (CheckNextTokenType(TokenType.LESS_EQ, TokenType.LESS,
-                    TokenType.EQ, TokenType.NEQ,
-                    TokenType.GREATER_EQ, TokenType.GREATER))
+            if (CheckNextTokenType(TokenType.LessEq, TokenType.Less,
+                    TokenType.Eq, TokenType.Neq,
+                    TokenType.GreaterEq, TokenType.Greater))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.OPR) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少关系运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少关系运算符.\n");
             return null;
         }
 
         private TreeNode ParseAdditiveExp()
         {    //多项式
-            var node = new TreeNode(StmtType.EXP) { LeftNode = ParseTerm(), MiddleNode = ParseMoreTerm() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseTerm(), MiddleNode = ParseMoreTerm() };
             return node;
         }
 
         private TreeNode ParseMoreTerm()
         {
-            if (CheckNextTokenType(TokenType.PLUS, TokenType.MINUS))
+            if (CheckNextTokenType(TokenType.Plus, TokenType.Minus))
             {
-                var node = new TreeNode(StmtType.MORE_TERM)
+                var node = new TreeNode(StmtType.MoreTerm)
                 {
                     LeftNode = GetAlgOp(),
                     MiddleNode = ParseAdditiveExp(),
@@ -430,53 +430,53 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode GetAlgOp()
         {  //处理多项式算术运算符
-            if (CheckNextTokenType(TokenType.PLUS, TokenType.MINUS, TokenType.MUL, TokenType.DIV))
+            if (CheckNextTokenType(TokenType.Plus, TokenType.Minus, TokenType.Mul, TokenType.Div))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.OPR) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少算术运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少算术运算符.\n");
             return null;
         }
 
         private TreeNode GetAssignOp()
         {  //处理多项式算术运算符
-            if (CheckNextTokenType(TokenType.ASSIGN, TokenType.DIV_ASSIGN,
-                    TokenType.MUL_ASSIGN, TokenType.PLUS_ASSIGN,
-                    TokenType.MINUS_ASSIGN, TokenType.MOD_ASSIGN))
+            if (CheckNextTokenType(TokenType.Assign, TokenType.DivAssign,
+                    TokenType.MulAssign, TokenType.PlusAssign,
+                    TokenType.MinusAssign, TokenType.ModAssign))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.OPR) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少赋值运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少赋值运算符.\n");
             return null;
         }
 
         private TreeNode ParseTerm()
         {  //处理项
-            var node = new TreeNode(StmtType.TERM) { LeftNode = ParseFactor(), MiddleNode = ParseMoreFactor() };
+            var node = new TreeNode(StmtType.Term) { LeftNode = ParseFactor(), MiddleNode = ParseMoreFactor() };
             return node;
         }
 
         private TreeNode ParseFactor()
         {
-            var node = new TreeNode(StmtType.FACTOR);
+            var node = new TreeNode(StmtType.Factor);
             switch (GetNextTokenType())
             {
-                case TokenType.NOT:
+                case TokenType.Not:
                     node.LeftNode = GetLogicOp();
                     node.MiddleNode = ParseFactor();
                     return node;
-                case TokenType.PLUS_PLUS:
+                case TokenType.PlusPlus:
                     node.LeftNode = GetIncDecOp();
                     node.MiddleNode = ParseFactor();
                     return node;
-                case TokenType.PLUS:
-                case TokenType.MINUS:
+                case TokenType.Plus:
+                case TokenType.Minus:
                     node.LeftNode = GetAlgOp();
                     node.MiddleNode = ParseFactor();
                     return node;
@@ -489,7 +489,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParsePossibleIncDecOp()
         {
-            return CheckNextTokenType(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS) ? GetIncDecOp() : null;
+            return CheckNextTokenType(TokenType.PlusPlus, TokenType.MinusMinus) ? GetIncDecOp() : null;
         }
 
         private TreeNode ParseSpecific()
@@ -497,78 +497,78 @@ namespace CmmInterpreter.Syntactic_Analyzer
             TreeNode node;
             switch (GetNextTokenType())
             {
-                case TokenType.LEFT_P:
-                    ConsumeNextToken(TokenType.LEFT_P);
+                case TokenType.LeftP:
+                    ConsumeNextToken(TokenType.LeftP);
                     node = ParseAssignExp();
-                    ConsumeNextToken(TokenType.RIGHT_P);
+                    ConsumeNextToken(TokenType.RightP);
                     return node;
-                case TokenType.INT_VAL:
-                case TokenType.REAL_VAL:
+                case TokenType.IntVal:
+                case TokenType.RealVal:
                     node = GetNumValue();
                     return node;
-                case TokenType.NULL:
+                case TokenType.Null:
                     _enumerator.MoveNext();
                     CurrentToken = _enumerator.Current;
-                    node = new TreeNode(StmtType.NULL)
+                    node = new TreeNode(StmtType.Null)
                     {
-                        DataType = TokenType.NULL,
+                        DataType = TokenType.Null,
                         Value = CurrentToken?.Value
                     };
                     return node;
-                case TokenType.PLUS:
-                    ConsumeNextToken(TokenType.PLUS);
+                case TokenType.Plus:
+                    ConsumeNextToken(TokenType.Plus);
                     node = ParseTerm();
                     return node;
-                case TokenType.MINUS:
-                    ConsumeNextToken(TokenType.MINUS);
+                case TokenType.Minus:
+                    ConsumeNextToken(TokenType.Minus);
                     node = ParseTerm();
-                    node.DataType = TokenType.MINUS;
+                    node.DataType = TokenType.Minus;
                     return node;
-                case TokenType.SCAN:
-                    ConsumeNextToken(TokenType.SCAN);
-                    ConsumeNextToken(TokenType.LEFT_P);
+                case TokenType.Scan:
+                    ConsumeNextToken(TokenType.Scan);
+                    ConsumeNextToken(TokenType.LeftP);
                     node = ParseVariable();
-                    ConsumeNextToken(TokenType.RIGHT_P);
+                    ConsumeNextToken(TokenType.RightP);
                     return node;
-                case TokenType.ID:
+                case TokenType.Id:
                     node = ParseVariable();
                     return node;
                 default:
-                    ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符或数值或表达式.\n");
+                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少标识符或数值或表达式.\n");
                     return null;
             }
         }
 
         private TreeNode GetIncDecOp()
         {     
-            if (CheckNextTokenType(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS))
+            if (CheckNextTokenType(TokenType.PlusPlus, TokenType.MinusMinus))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.OPR) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Operator) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少自增/自减运算符.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少自增/自减运算符.\n");
             return null;
         }
 
         private TreeNode ParseMoreFactor()
         {
-            if (!CheckNextTokenType(TokenType.MUL, TokenType.DIV)) return null;
-            var node = new TreeNode(StmtType.MORE_FACTOR) { LeftNode = GetAlgOp(), MiddleNode = ParseTerm() };
+            if (!CheckNextTokenType(TokenType.Mul, TokenType.Div)) return null;
+            var node = new TreeNode(StmtType.MoreFactor) { LeftNode = GetAlgOp(), MiddleNode = ParseTerm() };
             return node;
         }
 
         private TreeNode GetNumValue()
         {    //获取具体的值
-            if (CheckNextTokenType(TokenType.INT_VAL, TokenType.REAL_VAL))
+            if (CheckNextTokenType(TokenType.IntVal, TokenType.RealVal))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
-                var node = new TreeNode(StmtType.VALUE) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
+                var node = new TreeNode(StmtType.Value) { DataType = CurrentToken.Type, Value = CurrentToken.Value };
                 return node;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少值类型.\n");
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少值类型.\n");
             return null;
         }
 
@@ -590,11 +590,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     _enumerator.MoveNext();
                     CurrentToken = _enumerator.Current;
                 }else
-                    ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
+                    _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
                 return;
             }
-            ErrorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
-            throw new ParseException(ErrorInfo.ToString());
+            _errorInfo.Append("ERROR : " + "line: ").Append(CurrentToken.LineNo).Append(" 此处缺少").Append(new Token(type).TypeToString()).Append("（类型）.\n");
+            throw new ParseException(_errorInfo.ToString());
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
-    public class SymbolTable
+    public class Interpreter
     {
     }
 }
