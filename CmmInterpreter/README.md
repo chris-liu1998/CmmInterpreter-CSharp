@@ -1,6 +1,6 @@
 # CMMInterpreter  
 
-## JAVA版CMM解释器
+## C#版CMM解释器
 
 ### 语法分析
 

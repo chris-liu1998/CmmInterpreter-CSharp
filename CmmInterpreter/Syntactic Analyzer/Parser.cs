@@ -10,7 +10,7 @@ using CmmInterpreter.Util;
 
 namespace CmmInterpreter.Syntactic_Analyzer
 {   
-    //暂时忽略CurrentToken可能排除空异常的警告，因为目前未出现报错情况
+    //暂时忽略CurrentToken可能抛出空异常的警告，因为目前未出现报错情况
     public class Parser
     {
         public Token CurrentToken { get; set; }
