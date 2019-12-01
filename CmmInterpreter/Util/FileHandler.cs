@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using Microsoft.Win32;
 
 namespace CmmInterpreter.Util
@@ -11,33 +12,95 @@ namespace CmmInterpreter.Util
     public class FileHandler
     {
         public string FileName { get; set; }
+        public string FilePath { get; set; }
         public bool IsSaved { get; set; }
         public string OpenFile()
         {
-            string text = null;
-            var openFileDialog = new OpenFileDialog
+            try
             {
-                Title = "选择文件",
-                Filter = "cmm文件|*.cmm|文本文件|*.txt|所有文件|*.*",
-                FileName = string.Empty,
-                FilterIndex = 1,
-                Multiselect = false,
-                RestoreDirectory = true,
-            };
-            if (openFileDialog.ShowDialog () == true)
-            {
-                var streamReader = new StreamReader (openFileDialog.FileName, Encoding.UTF8);
-                text = streamReader.ReadToEnd();
-                streamReader.Close();
+                string text = null;
+                var openFileDialog = new OpenFileDialog
+                {
+                    Title = "选择文件",
+                    Filter = "cmm文件|*.cmm|文本文件|*.txt|所有文件|*.*",
+                    FileName = string.Empty,
+                    FilterIndex = 1,
+                    Multiselect = false,
+                    RestoreDirectory = true,
+                };
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    var streamReader = new StreamReader(openFileDialog.FileName, Encoding.UTF8);
+                    text = streamReader.ReadToEnd();
+                    streamReader.Close();
+                }
+
+                FilePath = openFileDialog.FileName;
+                FileName = Path.GetFileName(FilePath);
+                IsSaved = true;
+                return text;
             }
-            var fullPath = openFileDialog.FileName;
-            FileName = Path.GetFileName(fullPath);
-            IsSaved = true;
-            return text;
+            catch (IOException)
+            {
+                MessageBox.Show("打开失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            
         }
 
-        public void SaveFile()
+        public void SaveFile(string text)
         {
+            try
+            {
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Title = "保存文件",
+                    Filter = "cmm文件|*.cmm|文本文件|*.txt|所有文件|*.*",
+                    FilterIndex = 1,
+                    RestoreDirectory = true,
+                };
+                if (FilePath == null)
+                {
+                    var result = saveFileDialog.ShowDialog();
+                    if (result != true)
+                    {
+                        IsSaved = false;
+                        return;
+                    }
+                    FilePath = saveFileDialog.FileName;
+                }
+                var streamWriter = new StreamWriter(FilePath, false, Encoding.UTF8);
+                streamWriter.WriteLine(text);
+                streamWriter.Close();
+                FileName = Path.GetFileName(FilePath);
+                IsSaved = true;
+            }
+            catch (IOException)
+            {
+               MessageBox.Show("保存失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
+        }
+        public void SaveFileAs(string text)
+        {
+            try
+            {
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Title = "另存为文件",
+                    Filter = "cmm文件|*.cmm|文本文件|*.txt|所有文件|*.*",
+                    FilterIndex = 1,
+                    RestoreDirectory = true,
+                };
+                if (saveFileDialog.ShowDialog() != true) return;
+                var streamWriter = new StreamWriter(saveFileDialog.FileName, false, Encoding.UTF8);
+                streamWriter.WriteLine(text);
+                streamWriter.Close();
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("保存失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
 
         }
     }

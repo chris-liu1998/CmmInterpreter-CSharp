@@ -39,18 +39,24 @@ namespace CmmInterpreter
         private string FileName { get; set; }
         private bool IsSaved { get; set; }
         private Thread _thread;
+        private readonly FileHandler _fileHandler = new FileHandler();
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
-            var fileHandler = new FileHandler();
-            TextEditor.Text = fileHandler.OpenFile();
-            FileName = fileHandler.FileName;
-            IsSaved = fileHandler.IsSaved;
-            Title = "Cmm解释器 ——" + FileName;
+            TextEditor.Text = _fileHandler.OpenFile();
+            FileName = _fileHandler.FileName;
+            IsSaved = _fileHandler.IsSaved;
+            Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _fileHandler.SaveFile(TextEditor.Text);
+            FileName = _fileHandler.FileName;
+            IsSaved = _fileHandler.IsSaved;
+            if (FileName != null && !IsSaved)
+                Title = $"Cmm解释器 ——{FileName}*";
+            else
+                Title = $"Cmm解释器 ——{FileName}";
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -69,21 +75,26 @@ namespace CmmInterpreter
 
         private void OpenFileItem_Click(object sender, RoutedEventArgs e)
         {
-            var fileHandler = new FileHandler();
-            TextEditor.Text = fileHandler.OpenFile();
-            FileName = fileHandler.FileName;
-            IsSaved = fileHandler.IsSaved;
-            Title = "Cmm解释器 ——" + FileName;
+            TextEditor.Text = _fileHandler.OpenFile();
+            FileName = _fileHandler.FileName;
+            IsSaved = _fileHandler.IsSaved;
+            Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
         }
 
         private void SaveFileItem_Click(object sender, RoutedEventArgs e)
         {
-
+            _fileHandler.SaveFile(TextEditor.Text);
+            FileName = _fileHandler.FileName;
+            IsSaved = _fileHandler.IsSaved;
+            if (FileName != null && !IsSaved)
+                Title = $"Cmm解释器 ——{FileName}*";
+            else
+                Title = $"Cmm解释器 ——{FileName}";
         }
 
         private void SaveAsFileItem_Click(object sender, RoutedEventArgs e)
         {
-
+            _fileHandler.SaveFileAs(TextEditor.Text);
         }
 
         private void ExitItem_Click(object sender, RoutedEventArgs e)
@@ -92,7 +103,7 @@ namespace CmmInterpreter
             {
                 Application.Current.Shutdown();
             }
-            var result = MessageBox.Show("This File is not saved, \nare you sure to exit?", "警告", MessageBoxButton.YesNo);
+            var result = MessageBox.Show("This File is not saved, \nare you sure to exit?", "警告", MessageBoxButton.YesNo,MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
@@ -102,6 +113,10 @@ namespace CmmInterpreter
         private void TextEditor_TextChanged(object sender, EventArgs e)
         {
             IsSaved = false;
+            if (FileName != null)
+                Title = Title = $"Cmm解释器 ——{FileName}*";
+            else
+                Title = "Cmm解释器 ——Untitled*";
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -112,7 +127,7 @@ namespace CmmInterpreter
             }
             else
             {
-                var result = MessageBox.Show("This File is not saved, are you sure to exit?", "警告", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("This File is not saved, are you sure to exit?", "警告", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No)
                 {
                     e.Cancel = true;
@@ -204,6 +219,28 @@ namespace CmmInterpreter
         private void OpenDirButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void NewFileItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (!IsSaved)
+            {
+                var result = MessageBox.Show("This File is not saved, are you sure to create a new File?", "警告", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No) return;
+            }
+            TextEditor.Clear();
+            Title = "Cmm解释器 ——Untitled*";
+        }
+
+        private void NewFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!IsSaved)
+            {
+                var result = MessageBox.Show("This File is not saved, are you sure to create a new File?", "警告", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No) return;
+            }
+            TextEditor.Clear();
+            Title = "Cmm解释器 ——Untitled*";
         }
     }
 }

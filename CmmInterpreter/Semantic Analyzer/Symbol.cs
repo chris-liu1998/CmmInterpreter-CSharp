@@ -20,7 +20,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             Name = name;
             Type = type;
             Level = level;
-            Value = new Value();
+            Value = new Value(type);
         }
     }
 }

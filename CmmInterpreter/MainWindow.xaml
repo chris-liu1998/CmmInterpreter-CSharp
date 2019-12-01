@@ -7,7 +7,27 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="889.7" ResizeMode="CanResizeWithGrip" Closing="Window_Closing">
-
+    <Window.Resources>
+        <RoutedUICommand x:Key="OpenFileClick" Text="OpenFileClick"/>
+        <RoutedUICommand x:Key="OpenDirClick" Text="OpenDirectoryClick"/>
+        <RoutedUICommand x:Key="SaveClick" Text="SaveClick"/>
+        <RoutedUICommand x:Key="SaveAsClick" Text="SaveAsClick"/>
+        <RoutedUICommand x:Key="ExitClick" Text="ExitClick"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+O" Command="{StaticResource OpenFileClick}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+Shift+O" Command="{StaticResource OpenDirClick}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+S" Command="{StaticResource SaveClick}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{StaticResource SaveAsClick}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ExitClick}"></KeyBinding>
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource OpenFileClick}" CanExecute="OpenFileItem_Click"/>
+        <CommandBinding Command="{StaticResource OpenDirClick}" CanExecute="OpenDirItem_Click"/>
+        <CommandBinding Command="{StaticResource ExitClick}" CanExecute="ExitItem_Click"/>
+        <CommandBinding Command="{StaticResource SaveAsClick}" CanExecute="SaveAsFileItem_Click"/>
+        <CommandBinding Command="{StaticResource SaveClick}" CanExecute="SaveFileItem_Click"/>
+    </Window.CommandBindings>
     <DockPanel Margin="0,0,0,0">
         <Menu
             IsMainMenu="True"
@@ -16,7 +36,7 @@
                 Header="_File"
                 Height="22">
                 <MenuItem x:Name="NewFileItem"
-                        Header="New">
+                        Header="New" Click="NewFileItem_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FiberNew" />
                     </MenuItem.Icon>
@@ -166,7 +186,7 @@
     Style="{DynamicResource MaterialDesignToolBar}"
     ClipToBounds="False">
                         <Button x:Name="NewFileButton"
-                    ToolTip="New..." Margin="0,0,0,0" ClipToBounds="False" Padding="5">
+                    ToolTip="New..." Margin="0,0,0,0" ClipToBounds="False" Padding="5" Click="NewFileButton_Click">
                             <materialDesign:PackIcon Kind="FiberNew" Padding="0" Foreground="#DDDCBD2E" />
                         </Button>
                         <Button x:Name="OpenDirButton"
