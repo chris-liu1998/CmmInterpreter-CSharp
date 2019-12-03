@@ -1,5 +1,8 @@
 ﻿namespace CmmInterpreter.Semantic_Analyzer
 {
+    /// <summary>
+    /// 四元式类，用来构造四元式
+    /// </summary>
     public class Quadruple
     {
         public string Instruction { get; set; }

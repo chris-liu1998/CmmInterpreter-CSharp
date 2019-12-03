@@ -4,6 +4,9 @@ using CmmInterpreter.Exceptions;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
+    /// <summary>
+    /// 值的类，用来在语义分析过程中存储变量或常量的值
+    /// </summary>
     public class Value
     {
         public int Type { get; set; }  //存储变量值的类型
@@ -56,9 +59,20 @@ namespace CmmInterpreter.Semantic_Analyzer
             Bool = true;
         }
 
-        public void InitArray()
+        public void InitArray(int dim)
         {
-
+            if (Type == SymbolType.IntArray)
+            {
+                IntArray = new int[dim];
+            } 
+            else if (Type == SymbolType.RealArray)
+            {
+                RealArray = new double[dim];
+            }
+            else
+            {
+                CharArray = new char[dim];
+            }
         }
 
         public Value Plus(Value value)

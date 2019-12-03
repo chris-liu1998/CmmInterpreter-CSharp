@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
-    /// <summary>
-    /// 语义分析器
-    /// </summary>
-    public class Interpreter
+    public class InstructionGenerator
     {
+
     }
 }

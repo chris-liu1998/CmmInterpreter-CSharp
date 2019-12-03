@@ -1,6 +1,9 @@
 ﻿namespace CmmInterpreter.Semantic_Analyzer
 {
-    public class Instruction
+    /// <summary>
+    /// 解释器所用的指令集
+    /// </summary>
+    public class InstructionType
     {
         public const string Jump = "jump";
         public const string Scan = "scan";

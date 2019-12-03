@@ -10,6 +10,10 @@ namespace CmmInterpreter.Util
             return new PeekableEnumerator<T>(enumerator);
         }
     }
+    /// <summary>
+    /// 可Peek的迭代器
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PeekableEnumerator<T> : IEnumerator<T>
     {
         protected enum Status { Uninitialized, Starting, Started, Ending, Ended }

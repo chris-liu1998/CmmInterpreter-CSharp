@@ -7,6 +7,9 @@ using CmmInterpreter.Lexical_Analyzer;
 
 namespace CmmInterpreter.Syntactic_Analyzer
 {
+    /// <summary>
+    /// 语法树节点类，用来构建语法树
+    /// </summary>
     public class TreeNode
     {
         public int Type { get; set; }

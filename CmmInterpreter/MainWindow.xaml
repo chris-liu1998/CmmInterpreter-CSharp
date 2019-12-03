@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="889.7" ResizeMode="CanResizeWithGrip" Closing="Window_Closing">
     <Window.Resources>
+        <RoutedUICommand x:Key="NewFileClick" Text="NewFileClick"/>
         <RoutedUICommand x:Key="OpenFileClick" Text="OpenFileClick"/>
         <RoutedUICommand x:Key="OpenDirClick" Text="OpenDirectoryClick"/>
         <RoutedUICommand x:Key="SaveClick" Text="SaveClick"/>
@@ -15,6 +16,7 @@
         <RoutedUICommand x:Key="ExitClick" Text="ExitClick"/>
     </Window.Resources>
     <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{StaticResource NewFileClick}"></KeyBinding>
         <KeyBinding Gesture="Ctrl+O" Command="{StaticResource OpenFileClick}"></KeyBinding>
         <KeyBinding Gesture="Ctrl+Shift+O" Command="{StaticResource OpenDirClick}"></KeyBinding>
         <KeyBinding Gesture="Ctrl+S" Command="{StaticResource SaveClick}"></KeyBinding>
@@ -22,6 +24,7 @@
         <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ExitClick}"></KeyBinding>
     </Window.InputBindings>
     <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource NewFileClick}" CanExecute="NewFileItem_Click"/>
         <CommandBinding Command="{StaticResource OpenFileClick}" CanExecute="OpenFileItem_Click"/>
         <CommandBinding Command="{StaticResource OpenDirClick}" CanExecute="OpenDirItem_Click"/>
         <CommandBinding Command="{StaticResource ExitClick}" CanExecute="ExitItem_Click"/>

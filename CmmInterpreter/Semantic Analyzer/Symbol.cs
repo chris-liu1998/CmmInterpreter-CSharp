@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
+    /// <summary>
+    /// 符号类，用来构造符号表里的符号
+    /// </summary>
     public class Symbol
     {
         public int Level { get; set; }

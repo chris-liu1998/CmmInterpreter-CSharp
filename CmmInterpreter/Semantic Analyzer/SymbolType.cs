@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
+    /// <summary>
+    /// 符号类型
+    /// </summary>
     public class SymbolType
     {
         public const int Temp = -1;

@@ -9,6 +9,9 @@ using Microsoft.Win32;
 
 namespace CmmInterpreter.Util
 {
+    /// <summary>
+    /// 文件工具类，用来操作文件
+    /// </summary>
     public class FileHandler
     {
         public string FileName { get; set; }

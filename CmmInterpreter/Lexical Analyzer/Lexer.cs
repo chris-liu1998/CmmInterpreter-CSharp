@@ -5,6 +5,10 @@ using System.Text;
 
 namespace CmmInterpreter.Lexical_Analyzer
 {
+    /// <summary>
+    /// 词法分析器
+    /// </summary>
+
     public class Lexer
     {
         private readonly string[] _keyWords = {"if", "else", "while", "int", "real", "NULL",

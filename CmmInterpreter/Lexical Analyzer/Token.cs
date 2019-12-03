@@ -1,5 +1,8 @@
 ﻿namespace CmmInterpreter.Lexical_Analyzer
 {
+    /// <summary>
+    /// token类，用来创建token
+    /// </summary>
     public class Token
     {
         public string Value { get; set; }

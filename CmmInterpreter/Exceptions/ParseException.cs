@@ -2,6 +2,9 @@
 
 namespace CmmInterpreter.Exceptions
 {
+    /// <summary>
+    /// 语法分析器异常
+    /// </summary>
     public class ParseException : Exception
     {
         public ParseException() : base()

@@ -1,5 +1,8 @@
 ﻿namespace CmmInterpreter.Syntactic_Analyzer
 {
+    /// <summary>
+    /// 语句类型
+    /// </summary>
     public class StmtType
     {
         public const int None = 0;

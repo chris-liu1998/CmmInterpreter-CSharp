@@ -1,5 +1,8 @@
 ﻿namespace CmmInterpreter.Lexical_Analyzer
 {
+    /// <summary>
+    /// 种别码
+    /// </summary>
     public class TokenType
     {
         public const int Error = -1;
