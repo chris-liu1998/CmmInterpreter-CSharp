@@ -39,32 +39,42 @@
                 Header="_File"
                 Height="22">
                 <MenuItem x:Name="NewFileItem"
-                        Header="New" Click="NewFileItem_Click">
+                        Header="New"
+                        InputGestureText="Ctrl+N"
+                        Click="NewFileItem_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FiberNew" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="OpenDirItem"
-                          Header="Open Directory..." Click="OpenDirItem_Click">
+                          Header="Open Directory..." 
+                          InputGestureText="Ctrl+Shift+O"
+                          Click="OpenDirItem_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FolderOpen" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="OpenFileItem"
-                        Header="Open..." Click="OpenFileItem_Click">
+                        Header="Open..." 
+                        InputGestureText="Ctrl+O"
+                        Click="OpenFileItem_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FileXml" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="SaveFileItem"
-                    Header="Save" Click="SaveFileItem_Click">
+                    Header="Save"
+                    InputGestureText="Ctrl+S"
+                    Click="SaveFileItem_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon
                             Kind="ContentSave" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="SaveAsFileItem"
-                    Header="Save As.." Click="SaveAsFileItem_Click" >
+                    Header="Save As.." 
+                    InputGestureText="Ctrl+Shift+S"
+                    Click="SaveAsFileItem_Click" >
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="ContentSaveMove" />
                     </MenuItem.Icon>

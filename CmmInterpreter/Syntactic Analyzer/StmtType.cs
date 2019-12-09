@@ -30,7 +30,7 @@
         public const int MoreValue = 22;
         public const int MoreTerm = 23;
         public const int Term = 24;
-        public const int JumpSt = 25;
+        public const int JumpStmt = 25;
         public const int Program = 26;
         public const int StmtSeq = 27;
         public const int IfBlock = 28;

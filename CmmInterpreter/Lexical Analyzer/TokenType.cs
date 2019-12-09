@@ -54,5 +54,12 @@
         public const int DivAssign = 45; // /=
         public const int ModAssign = 46; // %=
         public const int CharVal = 47; //char型值
+
+        public const int LogicOrExp = 48;
+        public const int LogicAndExp = 49;
+        public const int CompEqExp = 50;
+        public const int CompExp = 51;
+        public const int AdditiveExp = 52;
+        public const int AssignExp = 53;
     }
 }

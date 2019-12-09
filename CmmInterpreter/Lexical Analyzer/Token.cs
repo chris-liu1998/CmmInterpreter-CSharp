@@ -110,6 +110,18 @@
                     return "SELF_DEC";
                 case TokenType.Null:
                     return "NULL";
+                case TokenType.CompEqExp:
+                    return "COMP_EQ_EXP";
+                case TokenType.CompExp:
+                    return "COMP_EXP";
+                case TokenType.LogicAndExp:
+                    return "LOGIC_AND_EXP";
+                case TokenType.LogicOrExp:
+                    return "LOGIC_OR_EXP";
+                case TokenType.AdditiveExp:
+                    return "ADDITIVE_EXP";
+                case TokenType.AssignExp:
+                    return "ASSIGN_EXP";
                 case TokenType.Error:
                     return "ERROR";
                 default:

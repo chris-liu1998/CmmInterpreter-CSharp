@@ -5,23 +5,33 @@
     /// </summary>
     public class Quadruple
     {
+        public int Line { get; set; }
         public string Instruction { get; set; }
         public string First { get; set; }
         public string Second { get; set; }
         public string Third{ get; set; }
         
 
-        public Quadruple(string instr, string first,string second, string third)
+        public Quadruple(string instr, string first,string second, string third, int line)
         {
             Instruction = instr;
             First = first;
             Second = second;
             Third = third;
+            Line = line + 1;
         }
 
         public override string ToString()
         {
-            return $"({Instruction}, {First}, {Second}, {Third})";
+            if (Instruction == null)
+                Instruction = "null";
+            if (First == null)
+                First = "null";
+            if (Second == null)
+                Second = "null";
+            if (Third == null)
+                Third = "null";
+            return $"{Line} : ({Instruction}, {First}, {Second}, {Third})\n";
         }
     }
 }

@@ -33,5 +33,7 @@
         public const string And = "&&";
         public const string Or = "||";
         public const string Not = "!";
+        public const string Char = "char";
+        public const string Mod = "%";
     }
 }

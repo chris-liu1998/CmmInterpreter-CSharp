@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CmmInterpreter.Exceptions;
 using CmmInterpreter.Lexical_Analyzer;
+using CmmInterpreter.Semantic_Analyzer;
 using CmmInterpreter.Syntactic_Analyzer;
 using Microsoft.Win32;
 using CmmInterpreter.Util;
@@ -45,6 +46,11 @@ namespace CmmInterpreter
             TextEditor.Text = _fileHandler.OpenFile();
             FileName = _fileHandler.FileName;
             IsSaved = _fileHandler.IsSaved;
+            if (FileName == "")
+            {
+                FileName = "Untitled";
+                IsSaved = false;
+            }
             Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
         }
 
@@ -53,10 +59,18 @@ namespace CmmInterpreter
             _fileHandler.SaveFile(TextEditor.Text);
             FileName = _fileHandler.FileName;
             IsSaved = _fileHandler.IsSaved;
-            if (FileName != null && !IsSaved)
-                Title = $"Cmm解释器 ——{FileName}*";
+            if (string.IsNullOrEmpty(FileName))
+            {
+                FileName = "Untitled";
+                IsSaved = false;
+            }
             else
-                Title = $"Cmm解释器 ——{FileName}";
+            {
+                if (!IsSaved)
+                    Title = $"Cmm解释器 ——{FileName}*";
+                else
+                    Title = $"Cmm解释器 ——{FileName}";
+            }
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -78,6 +92,11 @@ namespace CmmInterpreter
             TextEditor.Text = _fileHandler.OpenFile();
             FileName = _fileHandler.FileName;
             IsSaved = _fileHandler.IsSaved;
+            if (FileName == "")
+            {
+                FileName = "Untitled";
+                IsSaved = false;
+            }
             Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
         }
 
@@ -86,10 +105,18 @@ namespace CmmInterpreter
             _fileHandler.SaveFile(TextEditor.Text);
             FileName = _fileHandler.FileName;
             IsSaved = _fileHandler.IsSaved;
-            if (FileName != null && !IsSaved)
-                Title = $"Cmm解释器 ——{FileName}*";
+            if (string.IsNullOrEmpty(FileName))
+            {
+                FileName = "Untitled";
+                IsSaved = false;
+            }
             else
-                Title = $"Cmm解释器 ——{FileName}";
+            {
+                if (!IsSaved)
+                    Title = $"Cmm解释器 ——{FileName}*";
+                else
+                    Title = $"Cmm解释器 ——{FileName}";
+            }
         }
 
         private void SaveAsFileItem_Click(object sender, RoutedEventArgs e)
@@ -207,8 +234,48 @@ namespace CmmInterpreter
 
         private void RunInterpreterButton_Click(object sender, RoutedEventArgs e)
         {
+            ListViewArea.Visibility = Visibility.Collapsed;
+            Splitter.Visibility = Visibility.Collapsed;
+            var parser = new Parser(); //此处可使用同步线程，不过为了简单起见，就不做同步线程了
+            var lexer = new Lexer();
             StopButton.IsEnabled = true;
             ResultTextBox.Focus();
+            var instructions = new InstructionGenerator();
+            lexer.Chars = TextEditor.Text.ToCharArray();
+            lexer.LexAnalyze();
+            ResultTextBox.Text = "···········Interpreter Analyzing...\n\n";
+            if (lexer.ErrorInfoStrb.ToString().Length == 0)
+            {
+                parser.Tokens = lexer.Words;
+                parser.SyntaxAnalyze();
+                if (!parser.IsParseError && parser.SyntaxTree != null)
+                {
+                    var list = instructions.GenerateInstructions(parser.SyntaxTree);
+                    if(instructions.Error == null) 
+                        foreach (var i in list)
+                        {
+                            ResultTextBox.Text += i.ToString();
+                        }
+                    else
+                        ResultTextBox.Text += instructions.Error;
+                }
+                ResultTextBox.Text += "\n···········Semantic Analysis done!";
+                StopButton.IsEnabled = false;
+                if (TreeViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
+                {
+                    TreeViewArea.Visibility = Visibility.Collapsed;
+                    Splitter.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                TreeViewArea.Visibility = Visibility.Visible;
+                Splitter.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ResultTextBox.Text += lexer.ErrorInfoStrb.ToString();
+                ResultTextBox.Text += "\n···········Lexical Analysis Failed!\n";
+                ResultTextBox.Text += "\n···········Syntactic Analysis Not Implemented!";
+            }
         }
 
         private void OpenDirItem_Click(object sender, RoutedEventArgs e)

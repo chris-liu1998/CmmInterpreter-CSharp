@@ -94,6 +94,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 case TokenType.Minus:
                 case TokenType.PlusPlus:
                 case TokenType.MinusMinus:
+                case TokenType.LeftP:
+                case TokenType.Not:
                     var node = ParseAssignExp();
                     ConsumeNextToken(TokenType.End);
                     return node;
@@ -138,16 +140,15 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseIfBlock()
         {
-            if (CheckNextTokenType(TokenType.End))
-            {
-                ConsumeNextToken(TokenType.End);
-                return null;
-            }
             if (CheckNextTokenType(TokenType.Else))
             {
                 return ParseElseStmt();
             }
             var node = new TreeNode(StmtType.IfBlock) { LeftNode = ParseStmt(), MiddleNode = ParseElseStmt() };
+            if (node.LeftNode == null)
+            {
+                return null;
+            }
             return node;
         }
 
@@ -156,6 +157,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
             if (!CheckNextTokenType(TokenType.Else)) return null;
             var node = new TreeNode(StmtType.ElseStmt);
             ConsumeNextToken(TokenType.Else);
+            if (CheckNextTokenType(TokenType.End))
+            {
+                ConsumeNextToken(TokenType.End);
+                return null;
+            }
             node.LeftNode = ParseStmt();
             return node;
         }
@@ -183,18 +189,25 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseAssignExp()
         {
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseLogicOrExp(), MiddleNode = ParseMoreLogicOrExp() };
+            var node = new TreeNode(StmtType.Exp) {LeftNode = ParseLogicOrExp(), MiddleNode = ParseMoreLogicOrExp(), DataType = TokenType.AssignExp};
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
         private TreeNode ParseMoreLogicOrExp()
         {
-            if (!CheckNextTokenType(TokenType.Assign)) return null;
+            if (!CheckNextTokenType(TokenType.Assign, TokenType.DivAssign,
+                TokenType.MulAssign, TokenType.PlusAssign,
+                TokenType.MinusAssign, TokenType.ModAssign)) return null;
             var node = new TreeNode(StmtType.MoreLogicExp)
             {
                 LeftNode = GetAssignOp(),
-                MiddleNode = ParseLogicOrExp(),
-                RightNode = ParseMoreLogicOrExp()
+                MiddleNode = ParseAssignExp()
+                //MiddleNode = ParseLogicOrExp(),
+                //RightNode = ParseMoreLogicOrExp()
             };
             return node;
         }
@@ -204,7 +217,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
             _enumerator.MoveNext();
             CurrentToken = _enumerator.Current;
             var type = CurrentToken.Type;
-            var node = new TreeNode(StmtType.JumpSt) { DataType = type, Value = CurrentToken.Value };
+            var node = new TreeNode(StmtType.JumpStmt) { DataType = type, Value = CurrentToken.Value };
             ConsumeNextToken(TokenType.End);
             return node;
         }
@@ -233,26 +246,20 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseDeclareStmt()
         {
-            var node = new TreeNode(StmtType.DecStmt);
-            if (CheckNextTokenType(TokenType.Int, TokenType.Real, TokenType.Char))
-            {
-                var type = GetNextTokenType();
-                node.DataType = type;
-                ConsumeNextToken(type);
-            }
-            node.LeftNode = ParseVariableList();
+            var type = GetNextTokenType();
+            ConsumeNextToken(type);
+            var node = ParseVariableList();
+            node.DataType = type;
             ConsumeNextToken(TokenType.End);
             return node;
         }
 
         private TreeNode ParseVariableList()
         {
-            var node = new TreeNode(StmtType.VarList)
-            {
-                LeftNode = ParseVariable(),
-                MiddleNode = ParseInitializer(),
-                RightNode = ParseMoreVars()
-            };
+            var node = new TreeNode(StmtType.DecStmt);
+            node.LeftNode = ParseVariable();
+            node.LeftNode.RightNode = ParseInitializer();
+            node.NextNode = ParseMoreVars();
             return node;
         }
 
@@ -267,21 +274,29 @@ namespace CmmInterpreter.Syntactic_Analyzer
             if (!CheckNextTokenType(TokenType.LeftBrk)) return null;
             var node = new TreeNode(StmtType.ArrayDim);
             ConsumeNextToken(TokenType.LeftBrk);
-            node.LeftNode = ParseLogicOrExp();
+            node.LeftNode = ParseAssignExp();
             ConsumeNextToken(TokenType.RightBrk);
-            node.MiddleNode = ParseArrayDim();
+            node.NextNode = ParseArrayDim();
             return node;
         }
 
         private TreeNode ParseLogicOrExp()
         {
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseLogicAndExp(), MiddleNode = ParseMoreLogicAndExp() };
+            var node = new TreeNode(StmtType.Exp) {LeftNode = ParseLogicAndExp(), MiddleNode = ParseMoreLogicAndExp(), DataType = TokenType.LogicOrExp };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
         private TreeNode ParseLogicAndExp()
         {
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompEqExp(), MiddleNode = ParseMoreCompEqExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompEqExp(), MiddleNode = ParseMoreCompEqExp(), DataType = TokenType.LogicAndExp };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
@@ -299,7 +314,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseCompEqExp()
         {
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompExp(), MiddleNode = ParseMoreCompExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseCompExp(), MiddleNode = ParseMoreCompExp(), DataType = TokenType.CompEqExp };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
@@ -317,7 +336,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseCompExp()
         {
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseAdditiveExp(), RightNode = ParseMoreAdditiveExp() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseAdditiveExp(), MiddleNode = ParseMoreAdditiveExp(), DataType = TokenType.CompExp };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
@@ -336,11 +359,9 @@ namespace CmmInterpreter.Syntactic_Analyzer
         private TreeNode ParseMoreVars()
         {
             if (!CheckNextTokenType(TokenType.Comma)) return null;
-            var node = new TreeNode(StmtType.MoreVar);
             ConsumeNextToken(TokenType.Comma);
-            node.LeftNode = ParseVariable();
-            node.MiddleNode = ParseInitializer();
-            node.RightNode = ParseMoreVars();
+            var node = ParseVariable();
+            node.RightNode = ParseInitializer();
             return node;
         }
 
@@ -362,17 +383,16 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseValueList()
         {    //赋值列表
-            var node = new TreeNode(StmtType.ValueList) { LeftNode = ParseValue(), MiddleNode = ParseMoreValue() };
+            var node = new TreeNode(StmtType.ValueList) { LeftNode = ParseValue(), NextNode = ParseMoreValue() };
             return node;
         }
 
         private TreeNode ParseMoreValue()
         {
             if (!CheckNextTokenType(TokenType.Comma)) return null;
-            var node = new TreeNode(StmtType.MoreValue);
             ConsumeNextToken(TokenType.Comma);
-            node.LeftNode = ParseValue();
-            node.MiddleNode = ParseMoreValue();
+            var node = ParseValue();
+            node.NextNode = ParseMoreValue();
             return node;
         }
 
@@ -434,7 +454,11 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseAdditiveExp()
         {    //多项式
-            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseTerm(), MiddleNode = ParseMoreTerm() };
+            var node = new TreeNode(StmtType.Exp) { LeftNode = ParseTerm(), MiddleNode = ParseMoreTerm(), DataType = TokenType.AdditiveExp };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
@@ -445,7 +469,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 var node = new TreeNode(StmtType.MoreTerm)
                 {
                     LeftNode = GetAlgOp(),
-                    MiddleNode = ParseAdditiveExp(),
+                    MiddleNode = ParseTerm(),
                     RightNode = ParseMoreTerm()
                 };
                 return node;
@@ -455,7 +479,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode GetAlgOp()
         {  //处理多项式算术运算符
-            if (CheckNextTokenType(TokenType.Plus, TokenType.Minus, TokenType.Mul, TokenType.Div))
+            if (CheckNextTokenType(TokenType.Plus, TokenType.Minus, TokenType.Mul, TokenType.Div, TokenType.Mod))
             {
                 _enumerator.MoveNext();
                 CurrentToken = _enumerator.Current;
@@ -485,6 +509,10 @@ namespace CmmInterpreter.Syntactic_Analyzer
         private TreeNode ParseTerm()
         {  //处理项
             var node = new TreeNode(StmtType.Term) { LeftNode = ParseFactor(), MiddleNode = ParseMoreFactor() };
+            if (node.MiddleNode == null)
+            {
+                node = node.LeftNode;
+            }
             return node;
         }
 
@@ -509,6 +537,10 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 default:
                     node.LeftNode = ParseSpecific();
                     node.MiddleNode = ParsePossibleIncDecOp();
+                    if (node.MiddleNode == null)
+                    {
+                        node = node.LeftNode;
+                    }
                     return node;
             }
         }
@@ -538,19 +570,20 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     CurrentToken = _enumerator.Current;
                     node = new TreeNode(StmtType.Null)
                     {
-                        DataType = TokenType.Null,
+                        DataType = TokenType.Int,
                         Value = CurrentToken?.Value
                     };
                     return node;
-                case TokenType.Plus:
-                    ConsumeNextToken(TokenType.Plus);
-                    node = ParseTerm();
-                    return node;
-                case TokenType.Minus:
-                    ConsumeNextToken(TokenType.Minus);
-                    node = ParseTerm();
-                    node.DataType = TokenType.Minus;
-                    return node;
+                //case TokenType.Plus:
+                //    ConsumeNextToken(TokenType.Plus);
+                //    node = ParseTerm();
+                //    node.DataType = TokenType.Plus;
+                //    return node;
+                //case TokenType.Minus:
+                //    ConsumeNextToken(TokenType.Minus);
+                //    node = ParseTerm();
+                //    node.DataType = TokenType.Minus;
+                //    return node;
                 case TokenType.Scan:
                     ConsumeNextToken(TokenType.Scan);
                     ConsumeNextToken(TokenType.LeftP);
@@ -581,8 +614,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseMoreFactor()
         {
-            if (!CheckNextTokenType(TokenType.Mul, TokenType.Div)) return null;
-            var node = new TreeNode(StmtType.MoreFactor) { LeftNode = GetAlgOp(), MiddleNode = ParseTerm() };
+            if (!CheckNextTokenType(TokenType.Mul, TokenType.Div, TokenType.Mod)) return null;
+            var node = new TreeNode(StmtType.MoreFactor) { LeftNode = GetAlgOp(), MiddleNode = ParseFactor(),RightNode = ParseMoreFactor() };
             return node;
         }
 

@@ -62,7 +62,7 @@ namespace CmmInterpreter.Util
                     FilterIndex = 1,
                     RestoreDirectory = true,
                 };
-                if (FilePath == null)
+                if (string.IsNullOrEmpty(FilePath))
                 {
                     var result = saveFileDialog.ShowDialog();
                     if (result != true)
@@ -71,6 +71,11 @@ namespace CmmInterpreter.Util
                         return;
                     }
                     FilePath = saveFileDialog.FileName;
+                }
+
+                if (FilePath == "")
+                {
+                    return;
                 }
                 var streamWriter = new StreamWriter(FilePath, false, Encoding.UTF8);
                 streamWriter.WriteLine(text);

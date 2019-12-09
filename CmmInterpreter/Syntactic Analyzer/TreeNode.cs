@@ -18,7 +18,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
         public TreeNode LeftNode { get; set; }
         public TreeNode RightNode { get; set; }
         public TreeNode MiddleNode { get; set; }
-        public TreeNode NextStmtNode { get; set; }
+        public TreeNode NextNode { get; set; }
 
 
         public TreeNode (int type)
@@ -47,7 +47,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     return "STATEMENT_BLOCK";
                 case StmtType.AssignStmt:
                     return "ASSIGN_STATEMENT";
-                case StmtType.JumpSt:
+                case StmtType.JumpStmt:
                     return "JUMP_STATEMENT";
                 case StmtType.ValueList:
                     return "VALUE_LIST";
@@ -85,6 +85,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     return "PROGRAM";
                 case StmtType.StmtSeq:
                     return "STATEMENT_SEQ";
+                case StmtType.IfBlock:
+                    return "IF_BLOCk";
                 case StmtType.None:
                     return "NONE";
                 case StmtType.Null:
@@ -118,8 +120,8 @@ namespace CmmInterpreter.Syntactic_Analyzer
                 strb.Append (PrintNode (node.MiddleNode, " " + space));
             if (node.RightNode != null)
                 strb.Append (PrintNode (node.RightNode, " " + space));
-            if (node.NextStmtNode != null)
-                strb.Append (PrintNode (node.NextStmtNode, " " + space));
+            if (node.NextNode != null)
+                strb.Append (PrintNode (node.NextNode, " " + space));
             //strb.Append(space + "</" + node.typeToString() + ">\n");
             return strb.ToString ();
         }

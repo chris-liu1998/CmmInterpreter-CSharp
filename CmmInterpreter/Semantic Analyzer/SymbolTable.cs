@@ -8,49 +8,47 @@ using CmmInterpreter.Exceptions;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
+
+    public class SymbolList
+    {
+        public List<Symbol> Symbols { get; set; }
+
+        public SymbolList()
+        {
+            Symbols = new List<Symbol>();
+        }
+    }
     /// <summary>
     /// 定义符号表，用来构造符号表
     /// </summary>
     public class SymbolTable
     {
         private const string TempPrefix = "$temp";  //临时变量前缀
-        public List<Symbol> Symbols { get; set; }
-                                                   
-        public static LinkedList<SymbolTable> SymbolTables = new LinkedList<SymbolTable>();
+
+        public static LinkedList<SymbolList> symbolTable = new LinkedList<SymbolList>();
         private static LinkedList<Symbol> _tempNames = new LinkedList<Symbol>();
-        public static LinkedListNode<SymbolTable> Current = SymbolTables.Last;
+        public static LinkedListNode<SymbolList> Current;
         public static int Level = -1;
 
         public SymbolTable()
         {
             Level++;
-            Symbols = new List<Symbol>();
+            var symbolList = new SymbolList();
+            symbolTable.AddLast(symbolList);
+            Current = symbolTable.Last;
         }
 
-        public void Register(Symbol symbol)
+        public static void Register(Symbol symbol)
         {
-            if(Symbols.FindAll(s => s.Name == symbol.Name).Count != 0)
-                throw new InterpretException($"变量{symbol.Name}重复声明.");
-            Symbols.Add(symbol);
+            if(Current.Value.Symbols.FindAll(s => s.Name == symbol.Name).Count != 0)
+                throw new InterpretException($"ERROR : 变量{symbol.Name}重复声明.\n");
+            Current.Value.Symbols.Add(symbol);
         }
-        //public void Register(Symbol symbol)
-        //{
-        //    if (Symbols.FindAll(s => s.Name == symbol.Name).Count != 0)
-        //    {
-        //        if (Symbols.FindAll(s => s.Level >= symbol.Level).Count != 0)
-        //            throw new InterpretException($"变量{symbol.Name}重复声明.");
-        //        var sym = Symbols.FirstOrDefault(s => s.Level < symbol.Level);
-        //        var index = Symbols.IndexOf(sym);
-        //        Symbols[index] = symbol;
-        //        symbol.NextSameSymbol = sym;
-        //    }
-
-        //    Symbols.Add(symbol);
-        //}
 
         public static void DeRegister()
         {
-            SymbolTables.RemoveLast();
+            symbolTable.RemoveLast();
+            Current = symbolTable.Last;
             Level--;
         }
 
@@ -61,25 +59,31 @@ namespace CmmInterpreter.Semantic_Analyzer
         /// <returns>符号symbol</returns>
         public static Symbol FindSymbol(string name)
         {
-            while (Current.Previous != null)
+            while (true)
             {
                 var symbol = Current.Value.Symbols.FirstOrDefault(s => s.Name == name);
                 if (symbol != null)
                 {
-                    Current = SymbolTables.Last;
+                    Current = symbolTable.Last;
                     return symbol;
                 }
-                Current = Current.Previous;
+
+                if (Current.Previous != null)
+                    Current = Current.Previous;
+                else
+                {
+                    Current = symbolTable.Last;
+                    break;
+                }
             }
 
-            if (!name.StartsWith(TempPrefix)) return null;
+            if (name.StartsWith(TempPrefix))
             {
                 var tempSymbol = _tempNames.FirstOrDefault(s => s.Name == name);
-                if (tempSymbol != null) return tempSymbol;
-                var ts = new Symbol(name, SymbolType.Temp, -1);
-                _tempNames.AddLast(ts);
-                return ts;
+                return tempSymbol;
             }
+
+            throw new InterpretException($"ERROR : 变量{name} 未定义或未初始化.\n");
 
         }
 
@@ -109,7 +113,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (symbol.Type == SymbolType.IntArray)
             {
                 if (index >= symbol.Value.IntArray.Length)
-                    throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
                 var val = new Value(SymbolType.IntValue) {IntVal = symbol.Value.IntArray[index]};
                 return val;
             }
@@ -117,7 +121,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (symbol.Type == SymbolType.RealArray)
             {
                 if (index >= symbol.Value.RealArray.Length)
-                    throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
                 var val = new Value(SymbolType.RealValue) {RealVal = symbol.Value.RealArray[index]};
                 return val;
             }
@@ -125,12 +129,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             if(symbol.Type == SymbolType.CharArray)
             {
                 if (index >= symbol.Value.CharArray.Length)
-                    throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
                 var val = new Value(SymbolType.CharValue) {CharVal = symbol.Value.CharArray[index]};
                 return val;
             }
 
-            throw new InterpretException($"{name}变量不是数组.");
+            throw new InterpretException($"ERROR : {name}变量不是数组.\n");
         }
 
         /// <summary>
@@ -144,8 +148,9 @@ namespace CmmInterpreter.Semantic_Analyzer
             for (var i = 1; ; i++)
             {
                 var temp = TempPrefix + i;
-                var exist = false;
-                foreach(var s in _tempNames)
+                var exist = FindSymbol(temp) != null;
+
+                foreach (var s in _tempNames)
                 {
                     if (s.Name.Equals(temp))
                     {
@@ -153,12 +158,6 @@ namespace CmmInterpreter.Semantic_Analyzer
                         break;
                     }
                 }
-
-                if (FindSymbol(temp) != null)
-                {
-                    exist = true;
-                }
-              
                 if (exist)
                 {
                     continue;
@@ -196,7 +195,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (index < symbol.Value.IntArray.Length)
                 symbol.Value.IntArray[index] = value;
             else
-                throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
         }
 
           /// <summary>
@@ -211,7 +210,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (index < symbol.Value.RealArray.Length)
                 symbol.Value.RealArray[index] = value;
             else
-                throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
         }
 
           /// <summary>
@@ -226,12 +225,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (index < symbol.Value.CharArray.Length)
                 symbol.Value.CharArray[index] = value;
             else
-                throw new InterpretException($"数组 <{name}> 下标 {index} 越界.");
+                throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
         }
 
         public static void DeleteTables()
         {
-            SymbolTables.Clear();
+            symbolTable.Clear();
             _tempNames.Clear();
         }
     }

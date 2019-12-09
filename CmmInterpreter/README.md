@@ -19,7 +19,7 @@ ll(1)文法
 > + jump-stmt -> break; | continue;  
 > + assign-stmt -> assign-exp ;  
 > + assign-exp -> logic-or-exp more-logic-or-exp
-> + more-logic-or-exp -> assign-op logic-or-exp  more-logic-or-exp | ε  
+> + more-logic-or-exp -> assign-op assign-exp | ε  
 > + scan-stmt -> scan ( variable ) ;  
 > + print-stmt -> print ( logic-or-exp ) ;  
 > + declare-stmt -> (int | real | char) variable-list;  
@@ -40,9 +40,9 @@ ll(1)文法
 > + comp-exp -> additive-exp more-additive-exp  
 > + more-additive-exp -> comp-op additive-exp more-additive-exp | ε  
 > + additive-exp -> term more-term  
-> + more-term -> add-op additive-exp more-term | ε  
+> + more-term -> add-op term more-term | ε  
 > + term -> factor more-factor  
-> + more-factor -> mul-op term | ε  
+> + more-factor -> mul-op factor more-factor | ε  
 > + factor -> specific optr | !factor | inc-op factor | Add-op factor  
 > + specific -> ( logic-or-exp ) | number | variable | NULL | char-value | scan( variable )  
 > + optr -> inc-op | ε  
