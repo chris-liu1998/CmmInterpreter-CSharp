@@ -250,16 +250,31 @@ namespace CmmInterpreter
                 parser.SyntaxAnalyze();
                 if (!parser.IsParseError && parser.SyntaxTree != null)
                 {
-                    var list = instructions.GenerateInstructions(parser.SyntaxTree);
-                    if(instructions.Error == null) 
-                        foreach (var i in list)
+                    instructions.Tree = parser.SyntaxTree;
+                    var threadStart = new ThreadStart(instructions.GenerateInstructions);
+                    _thread = new Thread(threadStart) { IsBackground = true };
+                    _thread.Start();
+                    while (_thread.IsAlive)
+                        Thread.Sleep(10);
+                    if (instructions.Error == null)
+                        foreach (var i in instructions.Codes)
                         {
                             ResultTextBox.Text += i.ToString();
                         }
                     else
+                    {
                         ResultTextBox.Text += instructions.Error;
+                    }
+                    ResultTextBox.Text += "\n···········Semantic Analysis done!";
                 }
-                ResultTextBox.Text += "\n···········Semantic Analysis done!";
+                else
+                {
+                    ResultTextBox.Text += parser.Error;
+                    ResultTextBox.Text += "\n···········Syntactic Analysis Failed!\n";
+                    ResultTextBox.Text += "\n···········Semantic Analysis Not Implemented!";
+                }
+               
+               
                 StopButton.IsEnabled = false;
                 if (TreeViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
                 {
@@ -308,6 +323,63 @@ namespace CmmInterpreter
             }
             TextEditor.Clear();
             Title = "Cmm解释器 ——Untitled*";
+        }
+
+        private void RunCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            ListViewArea.Visibility = Visibility.Collapsed;
+            Splitter.Visibility = Visibility.Collapsed;
+            var parser = new Parser(); //此处可使用同步线程，不过为了简单起见，就不做同步线程了
+            var lexer = new Lexer();
+            StopButton.IsEnabled = true;
+            ResultTextBox.Focus();
+            var instructions = new InstructionGenerator();
+            var interpreter = new Interpreter();
+            lexer.Chars = TextEditor.Text.ToCharArray();
+            lexer.LexAnalyze();
+            ResultTextBox.Text = "···········Interpreter Analyzing...\n\n";
+            if (lexer.ErrorInfoStrb.ToString().Length == 0)
+            {
+                parser.Tokens = lexer.Words;
+                parser.SyntaxAnalyze();
+                if (!parser.IsParseError && parser.SyntaxTree != null)
+                {
+                    instructions.Tree = parser.SyntaxTree;
+                    instructions.GenerateInstructions();
+                    if (instructions.Error == null)
+                    {
+                        interpreter.Codes = instructions.Codes;
+                    }
+                    else
+                    {
+                        ResultTextBox.Text += instructions.Error;
+                    }
+                    ResultTextBox.Text += "\n···········Semantic Analysis done!";
+                }
+                else
+                {
+                    ResultTextBox.Text += parser.Error;
+                    ResultTextBox.Text += "\n···········Syntactic Analysis Failed!\n";
+                    ResultTextBox.Text += "\n···········Semantic Analysis Not Implemented!";
+                }
+
+
+                StopButton.IsEnabled = false;
+                if (TreeViewRadioButton.IsChecked != true || NoneRadioButton.IsChecked == true)
+                {
+                    TreeViewArea.Visibility = Visibility.Collapsed;
+                    Splitter.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                TreeViewArea.Visibility = Visibility.Visible;
+                Splitter.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ResultTextBox.Text += lexer.ErrorInfoStrb.ToString();
+                ResultTextBox.Text += "\n···········Lexical Analysis Failed!\n";
+                ResultTextBox.Text += "\n···········Syntactic Analysis Not Implemented!";
+            }
         }
     }
 }

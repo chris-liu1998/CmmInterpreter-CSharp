@@ -958,6 +958,19 @@ namespace CmmInterpreter.Semantic_Analyzer
             throw new InterpretException("自减运算错误不合法.");
         }
 
+        public Value ToReal()
+        {
+            if (Type == SymbolType.RealValue)
+            {
+                return this;
+            }
+
+            Type = SymbolType.RealValue;
+            RealVal = IntVal;
+            IntVal = 0;
+            return this;
+        }
+
         public override string ToString()
         {
             switch (Type)

@@ -295,6 +295,10 @@
                             ToolTip="Run Interpreter" Width="30" Height="30" BorderBrush="#FFCCCAD0" Background="#FFD4F7F6" Click="RunInterpreterButton_Click">
                                     <materialDesign:PackIcon Kind="PlayCircleOutline" Foreground="#DD14E00F" />
                                 </Button>
+                                <Button x:Name="RunCodeButton"
+                                        ToolTip="Run Code" Width="30" Height="30" BorderBrush="#FFCCCAD0" Background="#FFD4F7F6" Click="RunCodeButton_Click">
+                                    <materialDesign:PackIcon Kind="PlayCircleFilled" Foreground="#DD14E00F" />
+                                </Button>
                             </StackPanel>
                         </materialDesign:PopupBox>
                         <Button x:Name="StopButton"

@@ -9,20 +9,24 @@ using CmmInterpreter.Syntactic_Analyzer;
 
 namespace CmmInterpreter.Semantic_Analyzer
 {
+    /// <summary>
+    /// 语义分析器——中间代码生成
+    /// </summary>
     public class InstructionGenerator
     {
         private int Level { get; set; }
         private int Line { get; set; }
-        private LinkedList<Quadruple> Codes { get; set; }
+        public LinkedList<Quadruple> Codes { get; set; }
         private SymbolTable symbolTable;
         public string Error { get; set; }
         private bool isVar;
-        private int inPos { get; set; }
-        private int outPos { get; set; }
+        private int inPos;
+        private int outPos;
         private bool isRepeat;
         private Quadruple code;
+        public TreeNode Tree { get; set; }
 
-        public LinkedList<Quadruple> GenerateInstructions(TreeNode tree)
+        public void GenerateInstructions()
         {
             Line = -1;
             Level = 0;
@@ -30,7 +34,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             symbolTable = new SymbolTable();
             try
             {
-                InterpretStmtSeq(tree.LeftNode);
+                InterpretStmtSeq(Tree.LeftNode);
             }
             catch (InterpretException e)
             {
@@ -38,7 +42,6 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
 
             SymbolTable.DeleteTables();
-            return Codes;
         }
 
         public void InterpretStmtSeq(TreeNode node)
@@ -240,6 +243,7 @@ namespace CmmInterpreter.Semantic_Analyzer
         private string InterpretArrayDim(TreeNode node, out int dim)
         {
             dim = 1;
+
             var str = "[" + InterpretExp(node.LeftNode) + "]";
             while (node.NextNode != null)
             {
@@ -428,7 +432,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     Codes.AddLast(new Quadruple(InstructionType.Assign, $"{node.LeftNode.Value}{index}", dim.ToString(), temp, Line));
                     Line++;
                     isVar = true;
-                    return temp;
+                    return $"{node.LeftNode.Value}{index}";
                 }
             }
             throw new InterpretException("ERROR : 表达式非法.\n");

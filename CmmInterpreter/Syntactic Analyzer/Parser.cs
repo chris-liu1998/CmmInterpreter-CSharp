@@ -179,6 +179,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
 
         private TreeNode ParseAssignStmt()
         {
+            _isAssign = false;
             var node = ParseAssignExp();
             ConsumeNextToken(TokenType.End);
             if (!_isAssign) return node;
