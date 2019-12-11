@@ -17,4 +17,4 @@
 还有一些缺点，比如用scan语句的时候，自带控制台会很卡，而且打开程序后控制台会一直开着，不太美观，另外UI有些元素和功能没有完善（暂时是个摆设，主要是WPF的数据绑定我不太会Orz），目前没法解决，以后有时间再继续研究...(¦3[▓▓]  
 
 ## 界面演示图：  
-![avatar]
+![avatar](https://github.com/chris-liu1998/CmmInterpreter-CSharp/blob/master/CmmInterpreter/Resources/GUI.jpg)
