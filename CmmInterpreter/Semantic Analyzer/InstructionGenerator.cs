@@ -34,14 +34,18 @@ namespace CmmInterpreter.Semantic_Analyzer
             symbolTable = new SymbolTable();
             try
             {
-                InterpretStmtSeq(Tree.LeftNode);
+                if (Tree?.LeftNode != null)
+                    InterpretStmtSeq(Tree.LeftNode);
             }
             catch (InterpretException e)
             {
                 Error = e.Message;
             }
-
-            SymbolTable.DeleteTables();
+            finally
+            {
+                SymbolTable.DeleteTables();
+            }
+            
         }
 
         public void InterpretStmtSeq(TreeNode node)
@@ -406,7 +410,10 @@ namespace CmmInterpreter.Semantic_Analyzer
 
             if (node.Type == StmtType.Value || node.Type == StmtType.Null)
             {
-                return node.Value;
+                var temp = SymbolTable.GetTempSymbol().Name;
+                Codes.AddLast(new Quadruple(InstructionType.Assign, $"{node.Value}", null, temp, Line));
+                Line++;
+                return temp;
             }
             throw new InterpretException("ERROR : 表达式非法.\n");
         }
@@ -429,8 +436,8 @@ namespace CmmInterpreter.Semantic_Analyzer
                 {
                     var temp = SymbolTable.GetTempSymbol().Name;
                     var index = InterpretArrayDim(node.MiddleNode, out var dim);
-                    Codes.AddLast(new Quadruple(InstructionType.Assign, $"{node.LeftNode.Value}{index}", dim.ToString(), temp, Line));
-                    Line++;
+                    //Codes.AddLast(new Quadruple(InstructionType.Assign, $"{node.LeftNode.Value}{index}", dim.ToString(), temp, Line));
+                    //Line++;
                     isVar = true;
                     return $"{node.LeftNode.Value}{index}";
                 }
@@ -659,27 +666,27 @@ namespace CmmInterpreter.Semantic_Analyzer
                         Codes.AddLast(new Quadruple(InstructionType.Assign, InterpretExp(node.MiddleNode.MiddleNode), null, str, Line)) ;
                         break;
                     case TokenType.PlusAssign:
-                        Codes.AddLast(new Quadruple(InstructionType.Plus, InterpretExp(node.MiddleNode.MiddleNode), str, temp, Line));
+                        Codes.AddLast(new Quadruple(InstructionType.Plus, str, InterpretExp(node.MiddleNode.MiddleNode), temp, Line));
                         Line++;
                         Codes.AddLast(new Quadruple(InstructionType.Assign, temp, null, str, Line));
                         break;
                     case TokenType.MinusAssign:
-                        Codes.AddLast(new Quadruple(InstructionType.Minus, InterpretExp(node.MiddleNode.MiddleNode), str, temp, Line));
+                        Codes.AddLast(new Quadruple(InstructionType.Minus, str, InterpretExp(node.MiddleNode.MiddleNode), temp, Line));
                         Line++;
                         Codes.AddLast(new Quadruple(InstructionType.Assign, temp, null, str, Line));
                         break;
                     case TokenType.MulAssign:
-                        Codes.AddLast(new Quadruple(InstructionType.Mul, InterpretExp(node.MiddleNode.MiddleNode), str, temp, Line));
+                        Codes.AddLast(new Quadruple(InstructionType.Mul, str, InterpretExp(node.MiddleNode.MiddleNode), temp, Line));
                         Line++;
                         Codes.AddLast(new Quadruple(InstructionType.Assign, temp, null, str, Line));
                         break;
                     case TokenType.DivAssign:
-                        Codes.AddLast(new Quadruple(InstructionType.Div, InterpretExp(node.MiddleNode.MiddleNode), str, temp, Line));
+                        Codes.AddLast(new Quadruple(InstructionType.Div, str, InterpretExp(node.MiddleNode.MiddleNode), temp, Line));
                         Line++;
                         Codes.AddLast(new Quadruple(InstructionType.Assign, temp, null, str, Line));
                         break;
                     case TokenType.ModAssign:
-                        Codes.AddLast(new Quadruple(InstructionType.Mod, InterpretExp(node.MiddleNode.MiddleNode), str, temp, Line));
+                        Codes.AddLast(new Quadruple(InstructionType.Mod, str, InterpretExp(node.MiddleNode.MiddleNode), temp, Line));
                         Line++;
                         Codes.AddLast(new Quadruple(InstructionType.Assign, temp, null, str, Line));
                         break;

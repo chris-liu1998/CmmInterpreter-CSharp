@@ -80,6 +80,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (name.StartsWith(TempPrefix))
             {
                 var tempSymbol = _tempNames.FirstOrDefault(s => s.Name == name);
+                if (tempSymbol == null)
+                {
+                    var symbol = new Symbol(name, SymbolType.Temp, -1);
+                    _tempNames.AddLast(symbol);
+                    tempSymbol = symbol;
+                }
                 return tempSymbol;
             }
 
@@ -109,6 +115,8 @@ namespace CmmInterpreter.Semantic_Analyzer
         /// </returns>
         public static Value GetSymbolValue(string name, int index)
         {
+            if (index == -1)
+                return GetSymbolValue(name);
             var symbol = FindSymbol(name);
             if (symbol.Type == SymbolType.IntArray)
             {
@@ -148,7 +156,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             for (var i = 1; ; i++)
             {
                 var temp = TempPrefix + i;
-                var exist = FindSymbol(temp) != null;
+                var exist = false;
 
                 foreach (var s in _tempNames)
                 {
@@ -192,10 +200,21 @@ namespace CmmInterpreter.Semantic_Analyzer
         public static void SetSymbolValue(string name, int value, int index)
         {
             var symbol = FindSymbol(name);
-            if (index < symbol.Value.IntArray.Length)
-                symbol.Value.IntArray[index] = value;
+            if (symbol.Type == SymbolType.CharArray)
+            {
+                if (index < symbol.Value.CharArray.Length)
+                    symbol.Value.CharArray[index] = (char)value;
+                else
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            }
             else
-                throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            {
+                if (index < symbol.Value.IntArray.Length)
+                    symbol.Value.IntArray[index] = value;
+                else
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            }
+           
         }
 
           /// <summary>
@@ -222,10 +241,20 @@ namespace CmmInterpreter.Semantic_Analyzer
         public static void SetSymbolValue(string name, char value, int index)
         {
             var symbol = FindSymbol(name);
-            if (index < symbol.Value.CharArray.Length)
-                symbol.Value.CharArray[index] = value;
+            if (symbol.Type == SymbolType.IntArray)
+            {
+                if (index < symbol.Value.IntArray.Length)
+                    symbol.Value.IntArray[index] = (char)value;
+                else
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            }
             else
-                throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            {
+                if (index < symbol.Value.CharArray.Length)
+                    symbol.Value.CharArray[index] = value;
+                else
+                    throw new InterpretException($"ERROR : 数组 <{name}> 下标 {index} 越界.\n");
+            }
         }
 
         public static void DeleteTables()

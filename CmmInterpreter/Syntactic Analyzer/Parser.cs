@@ -527,6 +527,7 @@ namespace CmmInterpreter.Syntactic_Analyzer
                     node.MiddleNode = ParseFactor();
                     return node;
                 case TokenType.PlusPlus:
+                case TokenType.MinusMinus:
                     node.LeftNode = GetIncDecOp();
                     node.MiddleNode = ParseFactor();
                     return node;

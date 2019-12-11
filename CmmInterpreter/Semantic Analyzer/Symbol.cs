@@ -32,6 +32,13 @@ namespace CmmInterpreter.Semantic_Analyzer
             Level = level;
             Value = new Value(type) {IntVal = (value)};
         }
+        public Symbol(string name, int type, int level, char value)
+        {
+            Name = name;
+            Type = type;
+            Level = level;
+            Value = new Value(type) { CharVal = (value) };
+        }
         public Symbol(string name, int type, int level, double value)
         {
             Name = name;

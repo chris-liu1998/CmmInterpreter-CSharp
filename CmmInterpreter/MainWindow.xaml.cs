@@ -248,7 +248,7 @@ namespace CmmInterpreter
             {
                 parser.Tokens = lexer.Words;
                 parser.SyntaxAnalyze();
-                if (!parser.IsParseError && parser.SyntaxTree != null)
+                if (!parser.IsParseError)
                 {
                     instructions.Tree = parser.SyntaxTree;
                     var threadStart = new ThreadStart(instructions.GenerateInstructions);
@@ -337,24 +337,37 @@ namespace CmmInterpreter
             var interpreter = new Interpreter();
             lexer.Chars = TextEditor.Text.ToCharArray();
             lexer.LexAnalyze();
-            ResultTextBox.Text = "···········Interpreter Analyzing...\n\n";
+            ResultTextBox.Text = "···········Running Code...\n\n";
             if (lexer.ErrorInfoStrb.ToString().Length == 0)
             {
                 parser.Tokens = lexer.Words;
                 parser.SyntaxAnalyze();
-                if (!parser.IsParseError && parser.SyntaxTree != null)
+                if (!parser.IsParseError)
                 {
                     instructions.Tree = parser.SyntaxTree;
                     instructions.GenerateInstructions();
                     if (instructions.Error == null)
                     {
                         interpreter.Codes = instructions.Codes;
+                        interpreter.RunCode();
+                        if (interpreter.Error == null)
+                        {
+                            ResultTextBox.Text += $"{interpreter.result}\n";
+                            ResultTextBox.Text += "\n···········Process Complete!";
+                        }
+                           
+                        else
+                        {
+                            ResultTextBox.Text += interpreter.Error;
+                            ResultTextBox.Text += "\n···········Process Failed!";
+                        }
                     }
                     else
                     {
                         ResultTextBox.Text += instructions.Error;
+                        ResultTextBox.Text += "\n···········Semantic Analysis Failed!\n";
+                        ResultTextBox.Text += "\n···········Code Is Not Running!";
                     }
-                    ResultTextBox.Text += "\n···········Semantic Analysis done!";
                 }
                 else
                 {

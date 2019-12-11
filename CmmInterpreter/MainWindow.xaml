@@ -138,11 +138,10 @@
             </MenuItem>
             <MenuItem
                     Header="_Help"
-                    Height="22">
-
-            </MenuItem>
+                    Height="22"/>
         </Menu>
         <Grid>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="5"/>

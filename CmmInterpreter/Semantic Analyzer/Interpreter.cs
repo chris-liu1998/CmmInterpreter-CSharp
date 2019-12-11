@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace CmmInterpreter.Semantic_Analyzer
         private SymbolTable symbolTable;
         public LinkedList<Quadruple> Codes { get; set; }
         public string Error { get; set; }
+        public string result = "";
 
         public Interpreter()
         {
@@ -70,7 +73,8 @@ namespace CmmInterpreter.Semantic_Analyzer
                             }
                             else
                             {
-                                Console.WriteLine(@"Error : 类型不匹配.");
+                                throw new InterpretException("Error : 类型不匹配.\n");
+                                //Console.WriteLine(@"Error : 类型不匹配.");
                             }
                             break;
                         }
@@ -96,7 +100,8 @@ namespace CmmInterpreter.Semantic_Analyzer
                         }
                         else
                         {
-                            Console.WriteLine(@"Error : 类型不匹配.");
+                            throw new InterpretException("Error : 类型不匹配.\n");
+                                // Console.WriteLine(@"Error : 类型不匹配.");
                         }
                         break;
                     }
@@ -107,9 +112,13 @@ namespace CmmInterpreter.Semantic_Analyzer
                 var index = -1;
                 if (IsArrayElement(code.Third))
                 {
-                    index = GetIndex(code.Third);
+                    var dims = SymbolTable.GetSymbolValue(GetId(code.Third)).DimArray;
+                    dims[dims.Length - 1] = 1;
+                    index = GetIndex(code.Third, dims);
                 }
-                Console.WriteLine(SymbolTable.GetSymbolValue(code.Third, index - 1));
+
+                result += SymbolTable.GetSymbolValue(GetId(code.Third), index).ToString();
+                Console.WriteLine(SymbolTable.GetSymbolValue(GetId(code.Third), index));
             }
             if (instrType.Equals(InstructionType.In))
             {
@@ -126,7 +135,8 @@ namespace CmmInterpreter.Semantic_Analyzer
                 if (code.Second != null && code.First != null)
                 {
                     var symbol = new Symbol(code.Third, SymbolType.IntArray, Level);
-                    symbol.Value.InitArray(GetLength(code.Second));
+                    symbol.Value.InitArray(GetLength(code.Second, out var dims));
+                    symbol.Value.DimArray = dims.ToArray();
                     SymbolTable.Register(symbol);
                 }
                 else
@@ -142,10 +152,11 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
             if (instrType.Equals(InstructionType.Real))
             {
-                if (code.Second != null)
+                if (code.Second != null && code.First != null)
                 {
                     var symbol = new Symbol(code.Third, SymbolType.RealArray, Level);
-                    symbol.Value.InitArray(GetLength(code.Second));
+                    symbol.Value.InitArray(GetLength(code.Second, out var dims));
+                    symbol.Value.DimArray = dims.ToArray();
                     SymbolTable.Register(symbol);
                 }
                 else
@@ -162,20 +173,21 @@ namespace CmmInterpreter.Semantic_Analyzer
 
             if (instrType.Equals(InstructionType.Char))
             {
-                if (code.Second != null)
+                if (code.Second != null && code.First != null)
                 {
-                    var symbol = new Symbol(code.Third, SymbolType.RealArray, Level);
-                    symbol.Value.InitArray(GetLength(code.Second));
+                    var symbol = new Symbol(code.Third, SymbolType.CharArray, Level);
+                    symbol.Value.InitArray(GetLength(code.Second, out var dims));
+                    symbol.Value.DimArray = dims.ToArray();
                     SymbolTable.Register(symbol);
                 }
                 else
                 {
-                    double doubleValue = 0;
+                    var charValue = '\0';
                     if (code.First != null)
                     {
-                        doubleValue = GetDouble(code.First);
+                        charValue =GetChar(code.First);
                     }
-                    var symbol = new Symbol(code.Third, SymbolType.RealValue, Level, doubleValue);
+                    var symbol = new Symbol(code.Third, SymbolType.CharValue, Level, charValue);
                     SymbolTable.Register(symbol);
                 }
             }
@@ -235,6 +247,14 @@ namespace CmmInterpreter.Semantic_Analyzer
             {
                 SetValue(code.Third, GetValue(code.First).NotEqual(GetValue(code.Second)));
             }
+            if (instrType.Equals(InstructionType.And))
+            {
+                SetValue(code.Third, GetValue(code.First).And(GetValue(code.Second)));
+            }
+            if (instrType.Equals(InstructionType.Or))
+            {
+                SetValue(code.Third, GetValue(code.First).Or(GetValue(code.Second)));
+            }
             if (instrType.Equals(InstructionType.Not))
             {
                 SetValue(code.Third, Value.Not(GetValue(code.First)));
@@ -250,8 +270,8 @@ namespace CmmInterpreter.Semantic_Analyzer
         private Value GetValue(string name)
         {
             var regex1 = new Regex("\\d*\\.\\d*");
-            var regex2 = new Regex("\\d+");
-            var regex3 = new Regex("");
+            var regex2 = new Regex("^\\d+");
+            var regex3 = new Regex("^(\\'\\\\[ntrf0\\\\'\"]\\')|(\\'(.?)\\')|(\\'\\s\\')$");
             if (regex1.IsMatch(name))
             {
                 var value = new Value(SymbolType.RealValue);
@@ -266,14 +286,38 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
             if (regex3.IsMatch(name))
             {
+                name = name.Substring(1, name.Length - 2);
                 var value = new Value(SymbolType.CharValue);
+                if (name.StartsWith("\\"))
+                {
+                    var str = name.Substring(1, 1);
+                    switch (str)
+                    {
+                        case "r":
+                            value.CharVal = '\r';
+                            return value;
+                        case "t":
+                            value.CharVal = '\t';
+                            return value;
+                        case "n":
+                            value.CharVal = '\n';
+                            return value;
+                        case "0":
+                            value.CharVal = '\0';
+                            return value;
+                    }
+
+                    name = str;
+                }
                 value.CharVal = char.Parse(name);
                 return value;
             }
             var index = -1;
             if (IsArrayElement(name))
             {
-                index = GetIndex(name);
+                var dims = SymbolTable.GetSymbolValue(GetId(name)).DimArray;
+                dims[dims.Length - 1] = 1;
+                index = GetIndex(name, dims);
             }
             return SymbolTable.GetSymbolValue(GetId(name), index);
         }
@@ -286,14 +330,8 @@ namespace CmmInterpreter.Semantic_Analyzer
             {
                 return double.Parse(name);
             }
-            var valueInt = SymbolTable.GetSymbolValue(name);
-            if (valueInt.Type != SymbolType.RealValue)
-            {
-                valueInt.RealVal = valueInt.IntVal;
-                valueInt.IntVal = 0;
-            }
-           
-            return valueInt.RealVal;
+            var valueReal = SymbolTable.GetSymbolValue(name);
+            return valueReal.ToReal().RealVal;
         }
 
         private int GetInt(string name)
@@ -305,13 +343,17 @@ namespace CmmInterpreter.Semantic_Analyzer
                 return int.Parse(name);
             }
             var valueInt = SymbolTable.GetSymbolValue(name);
-            if (valueInt.Type == SymbolType.IntValue)
+            if ((valueInt.Type == SymbolType.IntValue) || (valueInt.Type == SymbolType.True) || (valueInt.Type == SymbolType.False))
             {
                 return valueInt.IntVal;
             }
+            if (valueInt.Type == SymbolType.CharValue)
+            {
+                return valueInt.CharVal;
+            }
             throw new InterpretException("Error : 类型应为int.\n");
         }
-        private int GetChar(string name)
+        private char GetChar(string name)
         {
             var pattern = "^(\\'\\\\[ntrf\\\\'\"]\\')|(\\'(.?)\\')|(\\'\\s\\')$";
             var regex = new Regex(pattern);
@@ -320,39 +362,46 @@ namespace CmmInterpreter.Semantic_Analyzer
                 name = name.Substring(1, name.Length - 2);
                 return char.Parse(name);
             }
-            var valueInt = SymbolTable.GetSymbolValue(name);
-            if (valueInt.Type == SymbolType.IntValue)
+            var value = SymbolTable.GetSymbolValue(name);
+            if ((value.Type == SymbolType.IntValue) || (value.Type == SymbolType.True) || (value.Type == SymbolType.False))
             {
-                return valueInt.IntVal;
+                return (char)value.IntVal;
             }
-            throw new InterpretException("Error : 类型应为int.\n");
+            if(value.Type == SymbolType.CharValue)
+            {
+                return value.CharVal;
+            }
+            throw new InterpretException("Error : 类型应为char.\n");
         }
 
-        private int GetLength(string name)
+        private int GetLength(string name, out LinkedList<int> dims)
         {
             var dimStr = name.Substring(name.IndexOf("[") + 1, name.Length - 2);
             string[] str;
 
             dimStr = dimStr.Replace("][", ",");
-
+            dims = new LinkedList<int>();
             str = dimStr.Split(',');
             var length = 1;
             foreach (var s in str)
             {
-                length *= GetInt(s);
+                var i = GetInt(s);
+                length *= i;
+                dims.AddLast(i);
             }
 
             return length;
         }
         private int GetIndex(string name, params int[] dims)      //多维数组转为一维数组的索引
         {
+            name = name.Substring(name.IndexOf("["));
             var indexStr = name.Substring(name.IndexOf("[") + 1, name.Length - 2);
             string[] str;
 
             indexStr = indexStr.Replace("][", ",");
 
             str = indexStr.Split(',');
-            if (dims.Length != str.Length - 1)
+            if (dims.Length != str.Length)
                 throw new InterpretException("ERROR : 数组索引错误.\n");
             var index = 0;
             var indexes = new List<int>();
@@ -380,13 +429,16 @@ namespace CmmInterpreter.Semantic_Analyzer
             var index = -1;
             if (IsArrayElement(name))
             {
-                index = GetIndex(name);
+                var dims = SymbolTable.GetSymbolValue(GetId(name)).DimArray;
+                dims[dims.Length - 1] = 1;
+                index = GetIndex(name, dims);
             }
             var type = SymbolTable.FindSymbol(GetId(name)).Type;
             switch (type)
             {
                 case SymbolType.IntValue:
                 case SymbolType.RealValue:
+                case SymbolType.CharValue:
                 {
                     if (type == SymbolType.RealValue)
                     {
@@ -396,17 +448,17 @@ namespace CmmInterpreter.Semantic_Analyzer
                     {
                         if (value.Type == SymbolType.RealValue)
                         {
-                            Console.WriteLine($"Error : 表达式{name}与变量类型不匹配");
+                            //Console.WriteLine($"Error : 表达式{name}与变量类型不匹配");
+                            throw new InterpretException($"Error : 表达式{name}与变量类型不匹配.\n");
                         }
-                        else
-                        {
-                            SymbolTable.SetSymbolValue(GetId(name), value);
-                        }
+
+                        SymbolTable.SetSymbolValue(GetId(name), value);
                     }
                     break;
                 }
                 case SymbolType.IntArray:
                 case SymbolType.RealArray:
+                case SymbolType.CharArray:
                 {
                     if (SymbolTable.GetSymbolValue(GetId(name), index).Type == SymbolType.RealValue)
                     {
@@ -416,15 +468,23 @@ namespace CmmInterpreter.Semantic_Analyzer
                     {
                         if (value.Type == SymbolType.RealValue)
                         {
-                            Console.WriteLine($"Error : 表达式{name}与变量类型不匹配");
+                            throw new InterpretException($"Error : 表达式{name}与变量类型不匹配.\n");
+                                //Console.WriteLine($"Error : 表达式{name}与变量类型不匹配");
                         }
-                        else
+
+                        if (value.Type == SymbolType.IntValue)
                         {
                             SymbolTable.SetSymbolValue(GetId(name), value.IntVal, index);
                         }
+                        else
+                        {
+                            SymbolTable.SetSymbolValue(GetId(name), value.CharVal, index);
+                        }
                     }
                     break;
+
                 }
+
                 case SymbolType.Temp:
                     SymbolTable.SetSymbolValue(GetId(name), value);
                     break;
@@ -451,7 +511,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                 var value = new Value(SymbolType.CharValue) {CharVal = char.Parse(input)};
                 return value;
             }
-            throw new InterpretException("ERROR : 输入非法\n");
+            throw new InterpretException("ERROR : 输入非法.\n");
         }
     }
 }

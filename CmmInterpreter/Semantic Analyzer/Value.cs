@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 using CmmInterpreter.Exceptions;
 
 namespace CmmInterpreter.Semantic_Analyzer
@@ -17,6 +18,7 @@ namespace CmmInterpreter.Semantic_Analyzer
         public int[] IntArray { get; set; }
         public double[] RealArray { get; set; }
         public char[] CharArray { get; set; }
+        public int [] DimArray { get; set; }
 
         public Value(int type)
         {
@@ -177,7 +179,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     }
 
             }
-            throw new InterpretException("加法运算不合法.");
+            throw new InterpretException("ERROR : 加法运算不合法.\n");
         }
 
         public Value Minus(Value value)
@@ -282,7 +284,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     }
 
             }
-            throw new InterpretException("减法运算不合法.");
+            throw new InterpretException("ERROR : 减法运算不合法.\n");
         }
 
         public Value Mul(Value value)
@@ -387,7 +389,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     }
 
             }
-            throw new InterpretException("乘法运算不合法.");
+            throw new InterpretException("ERROR : 乘法运算不合法.\n");
         }
 
         public Value Div(Value value)
@@ -401,22 +403,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal / value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal / value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal / 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = IntVal / value.RealVal;
                                 return result;
@@ -430,22 +432,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal / value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal / value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.RealVal = RealVal / 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal / value.RealVal;
                                 return result;
                         }
@@ -458,22 +460,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = CharVal / value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = CharVal / value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal / 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = CharVal / value.RealVal;
                                 return result;
@@ -488,22 +490,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal / value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal / value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal / 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = IntVal / value.RealVal;
                                 return result;
@@ -511,7 +513,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                         break;
                     }
             }
-            throw new InterpretException("除法运算不合法.");
+            throw new InterpretException("ERROR : 除法运算不合法.\n");
         }
 
         public Value Mod(Value value)
@@ -525,22 +527,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal % value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal % value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal % 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = IntVal % value.RealVal;
                                 return result;
@@ -554,22 +556,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal % value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal % value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.RealVal = RealVal % 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.RealVal = RealVal % value.RealVal;
                                 return result;
                         }
@@ -582,22 +584,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = CharVal % value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = CharVal % value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal % 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = CharVal % value.RealVal;
                                 return result;
@@ -612,22 +614,22 @@ namespace CmmInterpreter.Semantic_Analyzer
                         {
                             case SymbolType.IntValue:
                                 if (value.IntVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal % value.IntVal;
                                 return result;
                             case SymbolType.CharValue:
                                 if (value.CharVal == 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.IntVal = IntVal % value.CharVal;
                                 return result;
                             case SymbolType.True:
                                 result.IntVal = IntVal % 1;
                                 return result;
                             case SymbolType.False:
-                                throw new InterpretException("除以0");
+                                throw new InterpretException("ERROR : 除以0.\n");
                             case SymbolType.RealValue:
                                 if (Math.Abs(value.RealVal) <= 0)
-                                    throw new InterpretException("除以0");
+                                    throw new InterpretException("ERROR : 除以0.\n");
                                 result.Type = SymbolType.RealValue;
                                 result.RealVal = IntVal % value.RealVal;
                                 return result;
@@ -635,7 +637,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                         break;
                     }
             }
-            throw new InterpretException("取余运算不合法.");
+            throw new InterpretException("ERROR : 取余运算不合法.\n");
         }
 
         public Value GreaterThan(Value value)
@@ -708,7 +710,7 @@ namespace CmmInterpreter.Semantic_Analyzer
 
                     break;
             }
-            throw new InterpretException("关系运算不合法.");
+            throw new InterpretException("ERROR : 关系运算不合法.\n");
         }
 
         public Value LessThan(Value value)
@@ -781,7 +783,7 @@ namespace CmmInterpreter.Semantic_Analyzer
 
                     break;
             }
-            throw new InterpretException("关系运算不合法.");
+            throw new InterpretException("ERROR : 关系运算不合法.\n");
         }
 
         public Value Equal(Value value)
@@ -854,7 +856,7 @@ namespace CmmInterpreter.Semantic_Analyzer
 
                     break;
             }
-            throw new InterpretException("关系运算不合法.");
+            throw new InterpretException("ERROR : 关系运算不合法.\n");
         }
 
         public bool Boolean()
@@ -904,59 +906,6 @@ namespace CmmInterpreter.Semantic_Analyzer
             return Not(LessThan(value));
         }
 
-        public Value LeftIncrease()
-        {
-            Value result;
-            switch (Type)
-            {
-                case SymbolType.IntValue:
-                    result = new Value(SymbolType.IntValue);
-                    result.IntVal = IntVal + 1;
-                    return result;
-                case SymbolType.CharValue:
-                    result = new Value(SymbolType.CharValue);
-                    result.CharVal = (char)(CharVal + 1);
-                    return result;
-                case SymbolType.True:
-                case SymbolType.False:
-                    result = new Value(SymbolType.IntValue);
-                    result.IntVal = IntVal + 1;
-                    return result;
-                case SymbolType.RealValue:
-                    result = new Value(SymbolType.RealValue);
-                    result.RealVal = RealVal + 1;
-                    return result;
-            }
-
-            throw new InterpretException("自增运算错误不合法.");
-        }
-
-        public Value LeftDecrease()
-        {
-            Value result;
-            switch (Type)
-            {
-                case SymbolType.IntValue:
-                    result = new Value(SymbolType.IntValue);
-                    result.IntVal = IntVal - 1;
-                    return result;
-                case SymbolType.CharValue:
-                    result = new Value(SymbolType.CharValue);
-                    result.CharVal = (char)(CharVal - 1);
-                    return result;
-                case SymbolType.True:
-                case SymbolType.False:
-                    result = new Value(SymbolType.IntValue);
-                    result.IntVal = IntVal - 1;
-                    return result;
-                case SymbolType.RealValue:
-                    result = new Value(SymbolType.RealValue);
-                    result.RealVal = RealVal - 1;
-                    return result;
-            }
-
-            throw new InterpretException("自减运算错误不合法.");
-        }
 
         public Value ToReal()
         {
@@ -965,10 +914,18 @@ namespace CmmInterpreter.Semantic_Analyzer
                 return this;
             }
 
+            if (Type == SymbolType.IntValue)
+            {
+                Type = SymbolType.RealValue;
+                RealVal = IntVal;
+                IntVal = 0;
+                return this;
+            }
             Type = SymbolType.RealValue;
-            RealVal = IntVal;
-            IntVal = 0;
+            RealVal = CharVal; 
+            CharVal = '\0'; 
             return this;
+
         }
 
         public override string ToString()
@@ -978,13 +935,15 @@ namespace CmmInterpreter.Semantic_Analyzer
                 case SymbolType.IntValue:
                     return IntVal.ToString();
                 case SymbolType.CharValue:
-                    return CharVal.ToString();
+                    var str = new StringBuilder();
+                    str.Append(CharVal);
+                    return str.ToString();
                 case SymbolType.RealValue:
                     return RealVal.ToString(CultureInfo.InvariantCulture);
                 case SymbolType.True:
                     return $"true ({IntVal})";
                 case SymbolType.False:
-                    return $"False ({IntVal})";
+                    return $"false ({IntVal})";
                 default:
                     return "Array";
             }
