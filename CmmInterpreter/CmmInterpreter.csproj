@@ -133,7 +133,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\GUI.jpg" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\C--.ico" />
   </ItemGroup>
