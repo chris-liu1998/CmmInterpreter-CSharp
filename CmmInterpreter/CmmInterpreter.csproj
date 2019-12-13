@@ -90,6 +90,7 @@
     <Compile Include="Util\FileHandler.cs" />
     <Compile Include="Util\PeekableEnumerator.cs" />
     <Compile Include="Util\TokenData.cs" />
+    <Compile Include="Util\TreeNodeData.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

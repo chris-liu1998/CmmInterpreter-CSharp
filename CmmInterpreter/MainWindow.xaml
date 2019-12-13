@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CmmInterpreter"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:util="clr-namespace:CmmInterpreter.Util"
         mc:Ignorable="d"
-        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="889.7" ResizeMode="CanResizeWithGrip" Closing="Window_Closing">
+        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="942.5" ResizeMode="CanResizeWithGrip" Closing="Window_Closing">
     <Window.Resources>
         <RoutedUICommand x:Key="NewFileClick" Text="NewFileClick"/>
         <RoutedUICommand x:Key="OpenFileClick" Text="OpenFileClick"/>
@@ -322,9 +323,14 @@
                     SyntaxHighlighting="C#"
                     ShowLineNumbers="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,0.4,0.2" Grid.Column="0" BorderBrush="Black" TextChanged="TextEditor_TextChanged"/>
                     <GridSplitter x:Name="Splitter" Grid.Column="1" HorizontalAlignment="Stretch"/>
-                    <ListView x:Name="ListViewArea"
-                        IsEnabled ="{Binding Path=IsChecked, ElementName=ListViewCheckBox}"
-                        Grid.Column="2">
+                    <Grid Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ListView x:Name="ListViewArea"
+                                  IsEnabled ="{Binding Path=IsChecked, ElementName=ListViewRadioButton}"
+                        Grid.Column="0">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn
@@ -342,27 +348,21 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <TreeView x:Name="TreeViewArea"
-                        IsEnabled ="{Binding Path=IsChecked, ElementName=TreeViewCheckBox}"
-                        Grid.Column="1"
-                        ItemsSource="{Binding MovieCategories}">
-                        <TreeView.Resources>
-                            <!--<HierarchicalDataTemplate
-                                DataType="{x:Type domain:MovieCategory}"
-                                ItemsSource="{Binding Movies}">
-                                <TextBlock
-                                    Text="{Binding Name}"
-                                    Margin="3 2" />
-                            </HierarchicalDataTemplate>-->
-                            <!--<DataTemplate
-                                DataType="{x:Type domain:Movie}">
-                                <TextBlock
-                                    Text="{Binding Name}"
-                                    Margin="3 2"
-                                    ToolTip="{Binding Director}" />
-                            </DataTemplate>-->
-                        </TreeView.Resources>
+                        <TreeView x:Name="TreeViewArea"
+                                  Width="200"
+                              Grid.Column="1">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type util:TreeNodeData}" ItemsSource="{Binding Path=Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                    <StackPanel.ToolTip>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </StackPanel.ToolTip>
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
                     </TreeView>
+                    </Grid>
                 </Grid>
                 <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
                 <TextBox x:Name="ResultTextBox"

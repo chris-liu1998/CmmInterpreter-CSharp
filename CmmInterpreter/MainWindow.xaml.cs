@@ -41,6 +41,44 @@ namespace CmmInterpreter
         private bool IsSaved { get; set; }
         private Thread _thread;
         private readonly FileHandler _fileHandler = new FileHandler();
+       
+        private TreeNodeData GetSyntacticTreeView(TreeNode tree)
+        {
+
+            var node = new TreeNodeData
+            {
+                DisplayName = tree.TypeToString(), Name = new Token(tree.DataType).TypeToString()
+            };
+            if (tree.Value != null)
+            {
+                node.Name += $" : {tree.Value}";
+                var valNode = new TreeNodeData
+                {
+                    DisplayName = tree.Value, Name = Name = new Token(tree.DataType).TypeToString()
+                };
+                node.Children.Add(valNode);
+            }
+
+            if (tree.LeftNode != null)
+            {
+               node.Children.Add(GetSyntacticTreeView(tree.LeftNode));
+            }
+            if (tree.MiddleNode != null)
+            {
+                node.Children.Add(GetSyntacticTreeView(tree.MiddleNode));
+            }
+            if (tree.RightNode != null)
+            {
+                node.Children.Add(GetSyntacticTreeView(tree.RightNode));
+            }
+            if (tree.NextNode != null)
+            {
+                node.Children.Add(GetSyntacticTreeView(tree.NextNode));
+            }
+
+            return node;
+        }
+
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
             TextEditor.Text = _fileHandler.OpenFile();
@@ -165,6 +203,7 @@ namespace CmmInterpreter
 
         private void RunLexerButton_Click(object sender, RoutedEventArgs e)
         {
+            ListViewArea.Items.Clear();
             TreeViewArea.Visibility = Visibility.Collapsed;
             Splitter.Visibility = Visibility.Collapsed;
             var lexer = new Lexer();
@@ -197,6 +236,7 @@ namespace CmmInterpreter
 
         private void RunParserButton_Click(object sender, RoutedEventArgs e)
         {
+            ListViewArea.Items.Clear();
             ListViewArea.Visibility = Visibility.Collapsed;
             Splitter.Visibility = Visibility.Collapsed;
             var parser = new Parser(); //此处可使用同步线程，不过为了简单起见，就不做同步线程了
@@ -225,8 +265,11 @@ namespace CmmInterpreter
                     Splitter.Visibility = Visibility.Collapsed;
                     return;
                 }
+
+                var itemList = new List<TreeNodeData> {GetSyntacticTreeView(parser.SyntaxTree)};
                 TreeViewArea.Visibility = Visibility.Visible;
                 Splitter.Visibility = Visibility.Visible;
+                TreeViewArea.ItemsSource = itemList;
             }
             else
             {
@@ -239,6 +282,7 @@ namespace CmmInterpreter
 
         private void RunInterpreterButton_Click(object sender, RoutedEventArgs e)
         {
+            ListViewArea.Items.Clear();
             ListViewArea.Visibility = Visibility.Collapsed;
             Splitter.Visibility = Visibility.Collapsed;
             var parser = new Parser(); //此处可使用同步线程，不过为了简单起见，就不做同步线程了
@@ -332,6 +376,7 @@ namespace CmmInterpreter
 
         private void RunCodeButton_Click(object sender, RoutedEventArgs e)
         {
+            ListViewArea.Items.Clear();
             ListViewArea.Visibility = Visibility.Collapsed;
             Splitter.Visibility = Visibility.Collapsed;
             var parser = new Parser(); //此处可使用同步线程，不过为了简单起见，就不做同步线程了
