@@ -13,12 +13,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
 using CmmInterpreter.Exceptions;
 using CmmInterpreter.Lexical_Analyzer;
 using CmmInterpreter.Semantic_Analyzer;
 using CmmInterpreter.Syntactic_Analyzer;
 using Microsoft.Win32;
 using CmmInterpreter.Util;
+using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using ICSharpCode.AvalonEdit.Search;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace CmmInterpreter
 {
@@ -54,7 +61,7 @@ namespace CmmInterpreter
                 node.Name += $" : {tree.Value}";
                 var valNode = new TreeNodeData
                 {
-                    DisplayName = tree.Value, Name = Name = new Token(tree.DataType).TypeToString()
+                    DisplayName = tree.Value, Name = new Token(tree.DataType).TypeToString()
                 };
                 node.Children.Add(valNode);
             }
@@ -177,6 +184,7 @@ namespace CmmInterpreter
 
         private void TextEditor_TextChanged(object sender, EventArgs e)
         {
+            RefreshFoldStrategy(TextEditor);
             IsSaved = false;
             if (FileName != null)
                 Title = Title = $"Cmm解释器 ——{FileName}*";
@@ -184,6 +192,23 @@ namespace CmmInterpreter
                 Title = "Cmm解释器 ——Untitled*";
         }
 
+        private void RefreshFoldStrategy(TextEditor editor)
+        {
+            if (foldingStrategy != null)
+            {
+                if (foldingManager == null)
+                    foldingManager = FoldingManager.Install(editor.TextArea);
+                ((BraceFoldingStrategy)foldingStrategy).UpdateFoldings(foldingManager, editor.Document);
+            }
+            else
+            {
+                if (foldingManager != null)
+                {
+                    FoldingManager.Uninstall(foldingManager);
+                    foldingManager = null;
+                }
+            }
+        }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (IsSaved)
@@ -443,6 +468,160 @@ namespace CmmInterpreter
                 ResultTextBox.Text += "\n···········Lexical Analysis Failed!\n";
                 ResultTextBox.Text += "\n···········Syntactic Analysis Not Implemented!";
             }
+        }
+
+        private FoldingManager foldingManager;
+        private BraceFoldingStrategy foldingStrategy;
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            SearchPanel.Install(TextEditor.TextArea);
+            //设置语法规则
+            var name = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".Util.Cmm.xshd";
+
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+            foldingManager = FoldingManager.Install(TextEditor.TextArea);
+            foldingStrategy = new BraceFoldingStrategy();
+            //foldingStrategy.UpdateFoldings(foldingManager, TextEditor.Document);
+            TextEditor.TextArea.TextEntering += TextEditor_TextArea_TextEntering;
+            TextEditor.TextArea.TextEntered += TextEditor_TextArea_TextEntered;
+
+
+            //TextEditor.Text = DispContentValue;
+            //foldingStrategy.UpdateFoldings(foldingManager, TextEditor.Document);
+            using (var s = assembly.GetManifestResourceStream(name))
+            {
+                using (var reader = new XmlTextReader(s))
+                {
+                    var xshd = HighlightingLoader.LoadXshd(reader);
+                    TextEditor.SyntaxHighlighting = HighlightingLoader.Load(xshd, HighlightingManager.Instance);
+                }
+            }
+        }
+        CompletionWindow completionWindow;
+
+        private void TextEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        {
+            switch (e.Text)
+            {
+                case "p":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("print();"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "i":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("int"));
+                    data.Add(new MyCompletionData("if()"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "r":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("real"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "s":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("scan();"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "e":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("else"));
+                    data.Add(new MyCompletionData("else if()"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "w":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("while()"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "n":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("NULL"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "c":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("char"));
+                    data.Add(new MyCompletionData("continue;"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+                case "b":
+                {
+                    var completionWindow = new CompletionWindow(TextEditor.TextArea);
+                    var data = completionWindow.CompletionList.CompletionData;
+                    data.Add(new MyCompletionData("break;"));
+                    completionWindow.Show();
+                    completionWindow.Closed += delegate {
+                        completionWindow = null;
+                    };
+                    break;
+                }
+            }
+        }
+
+        public void TextEditor_TextArea_TextEntering(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text.Length > 0 && completionWindow != null)
+            {
+                if (!char.IsLetterOrDigit(e.Text[0]))
+                {
+                    // Whenever a non-letter is typed while the completion window is open,
+                    // insert the currently selected element.
+                    completionWindow.CompletionList.RequestInsertion(e);
+                }
+            }
+            // Do not set e.Handled=true.
+            // We still want to insert the character that was typed.
         }
     }
 }

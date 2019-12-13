@@ -7,7 +7,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:util="clr-namespace:CmmInterpreter.Util"
         mc:Ignorable="d"
-        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="942.5" ResizeMode="CanResizeWithGrip" Closing="Window_Closing">
+        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="942.5" ResizeMode="CanResizeWithGrip" Closing="Window_Closing" Loaded="Window_Loaded">
     <Window.Resources>
         <RoutedUICommand x:Key="NewFileClick" Text="NewFileClick"/>
         <RoutedUICommand x:Key="OpenFileClick" Text="OpenFileClick"/>
@@ -320,7 +320,6 @@
                     Name="TextEditor"
                     FontFamily="Consolas"
                     FontSize="13pt"
-                    SyntaxHighlighting="C#"
                     ShowLineNumbers="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,0.4,0.2" Grid.Column="0" BorderBrush="Black" TextChanged="TextEditor_TextChanged"/>
                     <GridSplitter x:Name="Splitter" Grid.Column="1" HorizontalAlignment="Stretch"/>
                     <Grid Grid.Column="2">

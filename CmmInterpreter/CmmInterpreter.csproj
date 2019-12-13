@@ -87,7 +87,9 @@
     <Compile Include="Syntactic Analyzer\Parser.cs" />
     <Compile Include="Syntactic Analyzer\StmtType.cs" />
     <Compile Include="Syntactic Analyzer\TreeNode.cs" />
+    <Compile Include="Util\BraceFoldingStrategy.cs" />
     <Compile Include="Util\FileHandler.cs" />
+    <Compile Include="Util\MyCompletionData.cs" />
     <Compile Include="Util\PeekableEnumerator.cs" />
     <Compile Include="Util\TokenData.cs" />
     <Compile Include="Util\TreeNodeData.cs" />
@@ -131,6 +133,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="README.md" />
+    <EmbeddedResource Include="Util\Cmm.xshd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

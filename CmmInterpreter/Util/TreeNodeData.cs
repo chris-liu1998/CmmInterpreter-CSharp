@@ -9,7 +9,6 @@ namespace CmmInterpreter.Util
     internal class TreeNodeData
     {
         public string DisplayName { get; set; }
-        public string Type { get; set; }
         public string Name { get; set; }
         public List<TreeNodeData> Children { get; set; }
 
