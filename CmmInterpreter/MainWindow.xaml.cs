@@ -188,6 +188,11 @@ namespace CmmInterpreter
             }
             ListViewArea.Visibility = Visibility.Visible;
             Splitter.Visibility = Visibility.Visible;
+            foreach (var t in lexer.Words)
+            {
+                var data = new TokenData(t.LineNo, t.Value, t.Type, t.TypeToString());
+                ListViewArea.Items.Add(data);
+            }
         }
 
         private void RunParserButton_Click(object sender, RoutedEventArgs e)

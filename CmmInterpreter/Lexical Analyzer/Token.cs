@@ -37,9 +37,9 @@
                 case TokenType.Char:
                     return "CHAR";
                 case TokenType.CharVal:
-                    return "Char_VALUE";
+                    return "CHAR_VALUE";
                 case TokenType.Id:
-                    return "Identifier";
+                    return "IDENTIFIER";
                 case TokenType.End:
                     return ";";
                 case TokenType.Assign:

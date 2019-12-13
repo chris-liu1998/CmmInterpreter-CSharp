@@ -20,8 +20,8 @@ namespace CmmInterpreter.Semantic_Analyzer
         private SymbolTable symbolTable;
         public string Error { get; set; }
         private bool isVar;
-        private int inPos;
-        private int outPos;
+        private LinkedList<int> inPos = new LinkedList<int>();
+        private LinkedList<int> outPos = new LinkedList<int>();
         private bool isRepeat;
         private Quadruple code;
         public TreeNode Tree { get; set; }
@@ -32,6 +32,8 @@ namespace CmmInterpreter.Semantic_Analyzer
             Level = 0;
             Codes = new LinkedList<Quadruple>();
             symbolTable = new SymbolTable();
+            inPos.AddLast(0);
+            outPos.AddLast(0);
             try
             {
                 if (Tree?.LeftNode != null)
@@ -126,12 +128,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             if (node.DataType == TokenType.Break)
             {
                 jump.Second = "break";
-                jump.Third = outPos.ToString();
+                jump.Third = outPos.Last.Value.ToString();
             } 
             else if (node.DataType == TokenType.Continue)
             {
                 jump.Second = "continue";
-                jump.Third = inPos.ToString();
+                jump.Third = inPos.Last.Value.ToString();
             }
             jumpCode = jump;
             Codes.AddLast(jump);
@@ -265,7 +267,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             var instruction = new Quadruple(InstructionType.Jump, InterpretExp(node.LeftNode), null, null, Line);
             Codes.AddLast(instruction);
             Line++;
-            inPos = Line;
+            inPos.AddLast(Line);
             if (node.MiddleNode != null) {
                 if(node.MiddleNode.Type != StmtType.StmtBlock)
                 {
@@ -288,15 +290,16 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
             Codes.AddLast(new Quadruple(InstructionType.Jump, null, null, jumpLine.ToString(), Line));
             Line++;
-            outPos = Line + 1;
+            outPos.AddLast(Line + 1);
             if (code != null )
             {
-                code.Third = outPos.ToString();
+                code.Third = outPos.Last.Value.ToString();
             }
-            isRepeat = false;
             instruction.Third = (Line + 1).ToString();
-            outPos = 0;
-            inPos = 0;
+            outPos.RemoveLast();
+            inPos.RemoveLast();
+            if(Level == 0) 
+                isRepeat = false;
         }
 
         private void InterpretIfStmt(TreeNode node)

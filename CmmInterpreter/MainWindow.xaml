@@ -255,11 +255,11 @@
                         <RadioButton x:Name="TreeViewRadioButton" 
                                      GroupName="View"
                                      ToolBar.OverflowMode="AsNeeded">
-                            SyntaxTreeView
+                            SyntaxTreeView(Parser)
                         </RadioButton>
                         <RadioButton x:Name="ListViewRadioButton" GroupName="View"
                                   ToolBar.OverflowMode="AsNeeded">
-                            Token/TupleListView
+                            TokenListView(Lexer)
                         </RadioButton>
                         <RadioButton x:Name="NoneRadioButton" GroupName="View"
                                      ToolBar.OverflowMode="AsNeeded"
@@ -324,19 +324,21 @@
                     <GridSplitter x:Name="Splitter" Grid.Column="1" HorizontalAlignment="Stretch"/>
                     <ListView x:Name="ListViewArea"
                         IsEnabled ="{Binding Path=IsChecked, ElementName=ListViewCheckBox}"
-                        Grid.Column="2"
-                        ItemsSource="{Binding Token}">
+                        Grid.Column="2">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn
-                                    DisplayMemberBinding="{Binding Code}"
-                                    Header="Code" />
+                                    DisplayMemberBinding="{Binding LineNo}"
+                                    Header="LineNo" />
                                 <GridViewColumn
                                     DisplayMemberBinding="{Binding Name}"
                                     Header="Name" />
                                 <GridViewColumn
-                                    DisplayMemberBinding="{Binding Description}"
-                                    Header="Description" />
+                                    DisplayMemberBinding="{Binding Type}"
+                                    Header="Type" />
+                                <GridViewColumn
+                                    DisplayMemberBinding="{Binding TypeName}"
+                                    Header="TypeName" />
                             </GridView>
                         </ListView.View>
                     </ListView>
