@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -354,10 +355,8 @@ namespace CmmInterpreter
                 {
                     TreeViewArea.Visibility = Visibility.Collapsed;
                     Splitter.Visibility = Visibility.Collapsed;
-                    return;
                 }
-                TreeViewArea.Visibility = Visibility.Visible;
-                Splitter.Visibility = Visibility.Visible;
+
             }
             else
             {
@@ -369,12 +368,42 @@ namespace CmmInterpreter
 
         private void OpenDirItem_Click(object sender, RoutedEventArgs e)
         {
-
+            var path = _fileHandler.OpenDir();
+            if (path != null)
+            {
+                FileTreeView.Items.Clear();
+                var rootDirectoryInfo = new DirectoryInfo(path);
+                var itemList = new List<FileTreeNode> { GetFileTree(rootDirectoryInfo) };
+                FileTreeView.ItemsSource = itemList;
+            }
+            
         }
 
         private void OpenDirButton_Click(object sender, RoutedEventArgs e)
         {
+            var path = _fileHandler.OpenDir();
+            if (path != null)
+            {
+                var rootDirectoryInfo = new DirectoryInfo(path);
+                var itemList = new List<FileTreeNode> {GetFileTree(rootDirectoryInfo)};
+                FileTreeView.ItemsSource = itemList;
+            }
+        }
 
+        private FileTreeNode GetFileTree(DirectoryInfo directoryInfo)
+        {
+            var directoryNode = new FileTreeNode {Name = directoryInfo.Name, IsFile = false, Children = new List<FileTreeNode>(), Icon = @"Resources/Folder.png" };
+            foreach (var directory in directoryInfo.GetDirectories())
+                directoryNode.Children.Add(GetFileTree(directory));
+
+            foreach (var file in directoryInfo.GetFiles())
+            {
+                if(file.Extension == ".txt" || file.Extension == ".cmm")
+                    directoryNode.Children.Add(new FileTreeNode { Name = file.Name, IsFile = true, Icon = @"Resources/CodeFile.png", Path = file.FullName });
+            }
+                
+
+            return directoryNode;
         }
 
         private void NewFileItem_Click(object sender, RoutedEventArgs e)
@@ -457,10 +486,8 @@ namespace CmmInterpreter
                 {
                     TreeViewArea.Visibility = Visibility.Collapsed;
                     Splitter.Visibility = Visibility.Collapsed;
-                    return;
                 }
-                TreeViewArea.Visibility = Visibility.Visible;
-                Splitter.Visibility = Visibility.Visible;
+              
             }
             else
             {
@@ -498,7 +525,7 @@ namespace CmmInterpreter
                 }
             }
         }
-        CompletionWindow completionWindow;
+        
 
         private void TextEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
@@ -608,7 +635,7 @@ namespace CmmInterpreter
                 }
             }
         }
-
+        CompletionWindow completionWindow;
         public void TextEditor_TextArea_TextEntering(object sender, TextCompositionEventArgs e)
         {
             if (e.Text.Length > 0 && completionWindow != null)
@@ -622,6 +649,25 @@ namespace CmmInterpreter
             }
             // Do not set e.Handled=true.
             // We still want to insert the character that was typed.
+        }
+
+        private void FileTreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (FileTreeView.SelectedItem != null)
+            {
+                var item = FileTreeView.SelectedItem as FileTreeNode;
+                if (item.IsFile)
+                {
+                    var streamReader = new StreamReader(item.Path, Encoding.UTF8);
+                    var text = streamReader.ReadToEnd();
+                    streamReader.Close();
+                    TextEditor.Text = text;
+                    FileName = item.Name;
+                    IsSaved = true;
+                    Title = $"Cmm解释器 ——{FileName}";
+                    _fileHandler.FilePath = item.Path;
+                }
+            }
         }
     }
 }

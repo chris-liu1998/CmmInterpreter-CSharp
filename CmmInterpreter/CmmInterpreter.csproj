@@ -89,6 +89,7 @@
     <Compile Include="Syntactic Analyzer\TreeNode.cs" />
     <Compile Include="Util\BraceFoldingStrategy.cs" />
     <Compile Include="Util\FileHandler.cs" />
+    <Compile Include="Util\FileTreeNode.cs" />
     <Compile Include="Util\MyCompletionData.cs" />
     <Compile Include="Util\PeekableEnumerator.cs" />
     <Compile Include="Util\TokenData.cs" />
@@ -143,6 +144,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\C--.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\CodeFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Folder.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\ShowMeTheXAML.MSBuild.1.0.12\build\net45\ShowMeTheXAML.MSBuild.targets" Condition="Exists('..\packages\ShowMeTheXAML.MSBuild.1.0.12\build\net45\ShowMeTheXAML.MSBuild.targets')" />

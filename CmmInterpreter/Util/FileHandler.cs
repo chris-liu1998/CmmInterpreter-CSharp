@@ -5,7 +5,10 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.Win32;
+using System.Windows.Forms;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace CmmInterpreter.Util
 {
@@ -49,6 +52,18 @@ namespace CmmInterpreter.Util
                 return null;
             }
             
+        }
+
+        public string OpenDir()
+        {
+            var dialog = new FolderBrowserDialog {Description = "请选择文件路径"};
+            string path = null;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                path = dialog.SelectedPath;
+            }
+
+            return path;
         }
 
         public void SaveFile(string text)

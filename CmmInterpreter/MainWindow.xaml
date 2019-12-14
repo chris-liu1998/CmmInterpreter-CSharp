@@ -7,7 +7,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:util="clr-namespace:CmmInterpreter.Util"
         mc:Ignorable="d"
-        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="942.5" ResizeMode="CanResizeWithGrip" Closing="Window_Closing" Loaded="Window_Loaded">
+        Title="Cmm解释器" Icon="/Resources/C--.ico" Height="758.7" Width="980.9" ResizeMode="CanResizeWithGrip" Closing="Window_Closing" Loaded="Window_Loaded">
     <Window.Resources>
         <RoutedUICommand x:Key="NewFileClick" Text="NewFileClick"/>
         <RoutedUICommand x:Key="OpenFileClick" Text="OpenFileClick"/>
@@ -146,47 +146,37 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition/>
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Expander x:Name="FileViewerExpander"
-                Grid.Column="0"
-                ExpandDirection="Right">
-                <Expander.Header>
-                    <TextBlock
-                        Text="File Viewer"
-                        RenderTransformOrigin=".5,.5">
-                        <TextBlock.LayoutTransform>
-                            <RotateTransform
-                                Angle="90" />
-                        </TextBlock.LayoutTransform>
-                    </TextBlock>
-                </Expander.Header>
-                <StackPanel
-                    Orientation="Vertical"
-                    Margin="8,24,16,24">
-                    <TreeView x:Name="FileTreeView"
-                              IsEnabled ="{Binding Path=IsChecked, ElementName=TreeViewCheckBox}"
-                              ItemsSource="{Binding MovieCategories}">
-                        <TreeView.Resources>
-                            <!--<HierarchicalDataTemplate
-                                DataType="{x:Type domain:MovieCategory}"
-                                ItemsSource="{Binding Movies}">
-                                <TextBlock
-                                    Text="{Binding Name}"
-                                    Margin="3 2" />
-                            </HierarchicalDataTemplate>-->
-                            <!--<DataTemplate
-                                DataType="{x:Type domain:Movie}">
-                                <TextBlock
-                                    Text="{Binding Name}"
-                                    Margin="3 2"
-                                    ToolTip="{Binding Director}" />
-                            </DataTemplate>-->
-                        </TreeView.Resources>
-                    </TreeView>
-                </StackPanel>
-            </Expander>
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+                <Expander x:Name="FileViewerExpander"
+                    Grid.Column="0"
+                    ExpandDirection="Right" HorizontalAlignment="Left" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <Expander.Header>
+                        <TextBlock
+                            Text="File Viewer"
+                            RenderTransformOrigin=".5,.5">
+                            <TextBlock.LayoutTransform>
+                                <RotateTransform
+                                    Angle="90" />
+                            </TextBlock.LayoutTransform>
+                        </TextBlock>
+                    </Expander.Header>
+                        <TreeView x:Name="FileTreeView" MouseDoubleClick="FileTreeView_MouseDoubleClick">
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate
+                                        DataType="{x:Type util:FileTreeNode}"
+                                        ItemsSource="{Binding Path=Children}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Icon}" Width="20"/>
+                                        <TextBlock Text="{Binding Name}"/>
+                                            <StackPanel.ToolTip>
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </StackPanel.ToolTip>
+                                        </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                </Expander>
             <Grid Margin="0,0,0,0" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
