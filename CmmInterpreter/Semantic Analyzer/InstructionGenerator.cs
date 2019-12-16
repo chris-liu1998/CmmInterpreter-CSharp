@@ -22,8 +22,8 @@ namespace CmmInterpreter.Semantic_Analyzer
         private bool isVar;
         private LinkedList<int> inPos = new LinkedList<int>();
         private LinkedList<int> outPos = new LinkedList<int>();
+        private LinkedList<List<Quadruple>> bCodes = new LinkedList<List<Quadruple>>();
         private bool isRepeat;
-        private Quadruple code;
         public TreeNode Tree { get; set; }
 
         public void GenerateInstructions()
@@ -37,7 +37,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             try
             {
                 if (Tree?.LeftNode != null)
-                    InterpretStmtSeq(Tree.LeftNode);
+                    InterpretStmtSeq(Tree.LeftNode, null);
             }
             catch (InterpretException e)
             {
@@ -50,11 +50,11 @@ namespace CmmInterpreter.Semantic_Analyzer
             
         }
 
-        public void InterpretStmtSeq(TreeNode node)
+        public void InterpretStmtSeq(TreeNode node, LinkedList<Quadruple> breakCode)
         {
             while (true)
             {
-                if (node.LeftNode != null) InterpretStmt(node.LeftNode);
+                if (node.LeftNode != null) InterpretStmt(node.LeftNode, breakCode);
                 if (node.MiddleNode != null)
                 {
                     node = node.MiddleNode;
@@ -65,12 +65,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
         }
 
-        public void InterpretStmt(TreeNode node)
+        public void InterpretStmt(TreeNode node, LinkedList<Quadruple> breakCode)
         {
             switch (node.Type)
             {
                 case StmtType.IfStmt:
-                    InterpretIfStmt(node);
+                    InterpretIfStmt(node, breakCode);
                     break;
                 case StmtType.WhileStmt:
                     InterpretWhileStmt(node);
@@ -89,11 +89,15 @@ namespace CmmInterpreter.Semantic_Analyzer
                     break;
                 case StmtType.JumpStmt:
                     InterpretJumpStmt(node, out Quadruple jumpCode);
-                    if(jumpCode.Second.Equals("break"))
-                        code = jumpCode;
+                    if (jumpCode.Second.Equals("break"))
+                    {
+                        if (breakCode != null)
+                            breakCode.AddLast(jumpCode);
+                    }
+                        
                     break;
                 case StmtType.StmtBlock:
-                    InterpretStmtBlock(node);
+                    InterpretStmtBlock(node, breakCode);
                     break;
                 case StmtType.Exp:
                 case StmtType.Term:
@@ -107,24 +111,24 @@ namespace CmmInterpreter.Semantic_Analyzer
             SymbolTable.ClearTempNames();
         }
 
-        private void InterpretStmtBlock(TreeNode node)
+        private void InterpretStmtBlock(TreeNode node, LinkedList<Quadruple> breakCode)
         {
             Codes.AddLast(new Quadruple(InstructionType.In, null, null, null, Line));
             Line++;
             Level++;
             var table = new SymbolTable();
             if(node.LeftNode != null)
-                InterpretStmtSeq(node.LeftNode);
+                InterpretStmtSeq(node.LeftNode, breakCode);
             SymbolTable.DeRegister();
             Level--;
             Codes.AddLast(new Quadruple(InstructionType.Out, null, null, null, Line));
             Line++;
         }
 
-        private void InterpretJumpStmt(TreeNode node, out Quadruple jumpCode)
+        private void InterpretJumpStmt(TreeNode node, out Quadruple jump)
         {
             if (!isRepeat) throw new InterpretException("ERROR : 跳转语句需要在循环体内.\n");
-            var jump = new Quadruple(InstructionType.Jump, null, null, null, Line);
+            jump = new Quadruple(InstructionType.Jump, null, null, null, Line);
             if (node.DataType == TokenType.Break)
             {
                 jump.Second = "break";
@@ -135,7 +139,6 @@ namespace CmmInterpreter.Semantic_Analyzer
                 jump.Second = "continue";
                 jump.Third = inPos.Last.Value.ToString();
             }
-            jumpCode = jump;
             Codes.AddLast(jump);
             Line++;
         }
@@ -268,6 +271,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             Codes.AddLast(instruction);
             Line++;
             inPos.AddLast(Line);
+            var breakCode = new LinkedList<Quadruple>();
             if (node.MiddleNode != null) {
                 if(node.MiddleNode.Type != StmtType.StmtBlock)
                 {
@@ -275,7 +279,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     Line++;
                     var table = new SymbolTable();
                     Level++;
-                    InterpretStmt(node.MiddleNode);
+                    InterpretStmt(node.MiddleNode, breakCode);
                     Level--;
                     SymbolTable.DeRegister();
                     Codes.AddLast(new Quadruple(InstructionType.Out, null, null, null, Line));
@@ -284,16 +288,17 @@ namespace CmmInterpreter.Semantic_Analyzer
                 }
                 else
                 {
-                    InterpretStmt(node.MiddleNode);
+                    InterpretStmt(node.MiddleNode, breakCode);
                 }
                
             }
             Codes.AddLast(new Quadruple(InstructionType.Jump, null, null, jumpLine.ToString(), Line));
             Line++;
             outPos.AddLast(Line + 1);
-            if (code != null )
+            if (breakCode != null )
             {
-                code.Third = outPos.Last.Value.ToString();
+                foreach(var c in breakCode)
+                    c.Third = (Line + 1).ToString();
             }
             instruction.Third = (Line + 1).ToString();
             outPos.RemoveLast();
@@ -302,7 +307,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                 isRepeat = false;
         }
 
-        private void InterpretIfStmt(TreeNode node)
+        private void InterpretIfStmt(TreeNode node, LinkedList<Quadruple> breakCode)
         {
             var jump = new Quadruple(InstructionType.Jump, InterpretExp(node.LeftNode), null, null, Line);
             Codes.AddLast(jump);
@@ -315,7 +320,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                     Line++;
                     Codes.AddLast(new Quadruple(InstructionType.Out, null, null, null, Line));
                     Line++;
-                    InterpretELseStmt(node, jump);
+                    InterpretELseStmt(node, jump, breakCode);
                 }
                 else
                 {
@@ -325,7 +330,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                         Line++;
                         var table = new SymbolTable();
                         Level++;
-                        InterpretStmt(node.MiddleNode.LeftNode);
+                        InterpretStmt(node.MiddleNode.LeftNode, breakCode);
                         Level--;
                         SymbolTable.DeRegister();
                         Codes.AddLast(new Quadruple(InstructionType.Out, null, null, null, Line));
@@ -333,18 +338,18 @@ namespace CmmInterpreter.Semantic_Analyzer
                     }
                     else
                     {
-                        InterpretStmt(node.MiddleNode.LeftNode);
+                        InterpretStmt(node.MiddleNode.LeftNode, breakCode);
                     }
                     jump.Third = (Line + 1).ToString();
                     if (node.MiddleNode.MiddleNode != null)
-                        InterpretELseStmt(node.MiddleNode.MiddleNode, jump);
+                        InterpretELseStmt(node.MiddleNode.MiddleNode, jump, breakCode);
                 }
             } 
             else
                 jump.Third = (Line + 1).ToString();
         }
 
-        private void InterpretELseStmt(TreeNode node, Quadruple jump)
+        private void InterpretELseStmt(TreeNode node, Quadruple jump, LinkedList<Quadruple> breakCode)
         {
             var elseJump = new Quadruple(InstructionType.Jump, null, null, null, Line);
             Codes.AddLast(elseJump);
@@ -356,7 +361,7 @@ namespace CmmInterpreter.Semantic_Analyzer
                 Line++;
                 var table = new SymbolTable();
                 Level++;
-                InterpretStmt(node.LeftNode);
+                InterpretStmt(node.LeftNode, breakCode);
                 Level--;
                 SymbolTable.DeRegister();
                 Codes.AddLast(new Quadruple(InstructionType.Out, null, null, null, Line));
@@ -364,7 +369,7 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
             else
             {
-                InterpretStmt(node.LeftNode);
+                InterpretStmt(node.LeftNode, breakCode);
             }
             elseJump.Third = (Line + 1).ToString();
         }

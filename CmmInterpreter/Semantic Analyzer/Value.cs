@@ -58,7 +58,8 @@ namespace CmmInterpreter.Semantic_Analyzer
             IntVal = Type;
             if (IntVal == 0)
                 Bool = false;
-            Bool = true;
+            else
+                Bool = true;
         }
 
         public void InitArray(int dim)

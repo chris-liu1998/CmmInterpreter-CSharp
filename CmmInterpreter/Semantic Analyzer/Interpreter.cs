@@ -51,7 +51,11 @@ namespace CmmInterpreter.Semantic_Analyzer
             var instrType = code.Instruction;
             if (instrType.Equals(InstructionType.Jump)) //跳转指令
             {
-                if (code.First == null || SymbolTable.GetSymbolValue(code.First).Type == SymbolType.False) //需要跳转
+                if (code.First == null || SymbolTable.GetSymbolValue(code.First).Type == SymbolType.False 
+                                       || (SymbolTable.GetSymbolValue(code.First).IntVal == 0
+                                       && SymbolTable.GetSymbolValue(code.First).RealVal == 0
+                                       && SymbolTable.GetSymbolValue(code.First).CharVal == 0)
+                                       ) //需要跳转
                 {
                     pc = int.Parse(code.Third);
                     return;
@@ -493,7 +497,7 @@ namespace CmmInterpreter.Semantic_Analyzer
 
         private Value ParseValue(string input)
         { ;
-            var regex1 = new Regex("^(-?\\d+)(\\.\\d?)$");
+            var regex1 = new Regex("^(-?\\d+)(\\.\\d*)$");
             var regex2 = new Regex("^(-?\\d+)$");
             var regex3 = new Regex("^(\\s)|(.?)|(\\[ntrf\'\"\\])$");
             if (regex1.IsMatch(input))
@@ -508,8 +512,12 @@ namespace CmmInterpreter.Semantic_Analyzer
             }
             if (regex3.IsMatch(input))
             {
-                var value = new Value(SymbolType.CharValue) {CharVal = char.Parse(input)};
-                return value;
+                if (input != "")
+                {
+                    var value = new Value(SymbolType.CharValue) { CharVal = char.Parse(input) };
+                    return value;
+                }
+               
             }
             throw new InterpretException("ERROR : 输入非法.\n");
         }
