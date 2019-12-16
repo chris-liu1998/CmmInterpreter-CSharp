@@ -49,6 +49,8 @@ namespace CmmInterpreter
         private bool IsSaved { get; set; }
         private Thread _thread;
         private readonly FileHandler _fileHandler = new FileHandler();
+        private string FileDir = null;
+        private bool IsNew;
        
         private TreeNodeData GetSyntacticTreeView(TreeNode tree)
         {
@@ -97,7 +99,14 @@ namespace CmmInterpreter
                 FileName = "Untitled";
                 IsSaved = false;
             }
-            Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
+
+            if (!IsSaved)
+                Title = $"Cmm解释器 ——{FileName}*";
+            else
+            {
+                Title = $"Cmm解释器 ——{FileName}";
+                IsNew = false;
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -115,7 +124,18 @@ namespace CmmInterpreter
                 if (!IsSaved)
                     Title = $"Cmm解释器 ——{FileName}*";
                 else
+                {
                     Title = $"Cmm解释器 ——{FileName}";
+                    if (!string.IsNullOrEmpty(FileDir) && IsNew)
+                    {
+                        var rootDirectoryInfo = new DirectoryInfo(FileDir);
+                        var itemList = new List<FileTreeNode> { GetFileTree(rootDirectoryInfo) };
+                        FileTreeView.ItemsSource = itemList;
+                    }
+
+                    IsNew = false;
+                }
+
             }
         }
 
@@ -131,38 +151,6 @@ namespace CmmInterpreter
                 Thread.Sleep(100);
             }
             StopButton.IsEnabled = false;
-        }
-
-        private void OpenFileItem_Click(object sender, RoutedEventArgs e)
-        {
-            TextEditor.Text = _fileHandler.OpenFile();
-            FileName = _fileHandler.FileName;
-            IsSaved = _fileHandler.IsSaved;
-            if (FileName == "")
-            {
-                FileName = "Untitled";
-                IsSaved = false;
-            }
-            Title = !IsSaved ? $"Cmm解释器 ——{FileName}*" : $"Cmm解释器 ——{FileName}";
-        }
-
-        private void SaveFileItem_Click(object sender, RoutedEventArgs e)
-        {
-            _fileHandler.SaveFile(TextEditor.Text);
-            FileName = _fileHandler.FileName;
-            IsSaved = _fileHandler.IsSaved;
-            if (string.IsNullOrEmpty(FileName))
-            {
-                FileName = "Untitled";
-                IsSaved = false;
-            }
-            else
-            {
-                if (!IsSaved)
-                    Title = $"Cmm解释器 ——{FileName}*";
-                else
-                    Title = $"Cmm解释器 ——{FileName}";
-            }
         }
 
         private void SaveAsFileItem_Click(object sender, RoutedEventArgs e)
@@ -366,24 +354,12 @@ namespace CmmInterpreter
             }
         }
 
-        private void OpenDirItem_Click(object sender, RoutedEventArgs e)
-        {
-            var path = _fileHandler.OpenDir();
-            if (path != null)
-            {
-                FileTreeView.Items.Clear();
-                var rootDirectoryInfo = new DirectoryInfo(path);
-                var itemList = new List<FileTreeNode> { GetFileTree(rootDirectoryInfo) };
-                FileTreeView.ItemsSource = itemList;
-            }
-            
-        }
-
         private void OpenDirButton_Click(object sender, RoutedEventArgs e)
         {
             var path = _fileHandler.OpenDir();
             if (path != null)
             {
+                FileDir = path;
                 var rootDirectoryInfo = new DirectoryInfo(path);
                 var itemList = new List<FileTreeNode> {GetFileTree(rootDirectoryInfo)};
                 FileTreeView.ItemsSource = itemList;
@@ -401,20 +377,7 @@ namespace CmmInterpreter
                 if(file.Extension == ".txt" || file.Extension == ".cmm")
                     directoryNode.Children.Add(new FileTreeNode { Name = file.Name, IsFile = true, Icon = @"Resources/CodeFile.png", Path = file.FullName });
             }
-                
-
             return directoryNode;
-        }
-
-        private void NewFileItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (!IsSaved)
-            {
-                var result = MessageBox.Show("This File is not saved, are you sure to create a new File?", "警告", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.No) return;
-            }
-            TextEditor.Clear();
-            Title = "Cmm解释器 ——Untitled*";
         }
 
         private void NewFileButton_Click(object sender, RoutedEventArgs e)
@@ -425,7 +388,10 @@ namespace CmmInterpreter
                 if (result == MessageBoxResult.No) return;
             }
             TextEditor.Clear();
+            FileName = "Untitled";
+            _fileHandler.FilePath = "";
             Title = "Cmm解释器 ——Untitled*";
+            IsNew = true;
         }
 
         private void RunCodeButton_Click(object sender, RoutedEventArgs e)
@@ -658,16 +624,30 @@ namespace CmmInterpreter
                 var item = FileTreeView.SelectedItem as FileTreeNode;
                 if (item.IsFile)
                 {
-                    var streamReader = new StreamReader(item.Path, Encoding.UTF8);
-                    var text = streamReader.ReadToEnd();
-                    streamReader.Close();
-                    TextEditor.Text = text;
+                    if (File.Exists(item.Path))
+                    {
+                        var streamReader = new StreamReader(item.Path, Encoding.UTF8);
+                        var text = streamReader.ReadToEnd();
+                        streamReader.Close();
+                        TextEditor.Text = text;
+                        FileName = item.Name;
+                        IsSaved = true;
+                        Title = $"Cmm解释器 ——{FileName}";
+                        _fileHandler.FilePath = item.Path;
+                        return;
+                    }
                     FileName = item.Name;
                     IsSaved = true;
                     Title = $"Cmm解释器 ——{FileName}";
-                    _fileHandler.FilePath = item.Path;
+                   
+
                 }
             }
+        }
+
+        private void SaveFileButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

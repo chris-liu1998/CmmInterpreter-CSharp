@@ -25,12 +25,12 @@
         <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ExitClick}"></KeyBinding>
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource NewFileClick}" CanExecute="NewFileItem_Click"/>
-        <CommandBinding Command="{StaticResource OpenFileClick}" CanExecute="OpenFileItem_Click"/>
-        <CommandBinding Command="{StaticResource OpenDirClick}" CanExecute="OpenDirItem_Click"/>
+        <CommandBinding Command="{StaticResource NewFileClick}" CanExecute="NewFileButton_Click"/>
+        <CommandBinding Command="{StaticResource OpenFileClick}" CanExecute="OpenFileButton_Click"/>
+        <CommandBinding Command="{StaticResource OpenDirClick}" CanExecute="OpenDirButton_Click"/>
         <CommandBinding Command="{StaticResource ExitClick}" CanExecute="ExitItem_Click"/>
         <CommandBinding Command="{StaticResource SaveAsClick}" CanExecute="SaveAsFileItem_Click"/>
-        <CommandBinding Command="{StaticResource SaveClick}" CanExecute="SaveFileItem_Click"/>
+        <CommandBinding Command="{StaticResource SaveClick}" CanExecute="SaveButton_Click"/>
     </Window.CommandBindings>
     <DockPanel Margin="0,0,0,0">
         <Menu
@@ -42,7 +42,7 @@
                 <MenuItem x:Name="NewFileItem"
                         Header="New"
                         InputGestureText="Ctrl+N"
-                        Click="NewFileItem_Click">
+                        Click="NewFileButton_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FiberNew" />
                     </MenuItem.Icon>
@@ -50,7 +50,7 @@
                 <MenuItem x:Name="OpenDirItem"
                           Header="Open Directory..." 
                           InputGestureText="Ctrl+Shift+O"
-                          Click="OpenDirItem_Click">
+                          Click="OpenDirButton_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FolderOpen" />
                     </MenuItem.Icon>
@@ -58,7 +58,7 @@
                 <MenuItem x:Name="OpenFileItem"
                         Header="Open..." 
                         InputGestureText="Ctrl+O"
-                        Click="OpenFileItem_Click">
+                        Click="OpenFileButton_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon Kind="FileXml" />
                     </MenuItem.Icon>
@@ -66,7 +66,7 @@
                 <MenuItem x:Name="SaveFileItem"
                     Header="Save"
                     InputGestureText="Ctrl+S"
-                    Click="SaveFileItem_Click">
+                    Click="SaveButton_Click">
                     <MenuItem.Icon>
                         <materialDesign:PackIcon
                             Kind="ContentSave" />

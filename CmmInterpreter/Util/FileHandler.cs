@@ -40,7 +40,6 @@ namespace CmmInterpreter.Util
                     text = streamReader.ReadToEnd();
                     streamReader.Close();
                 }
-
                 FilePath = openFileDialog.FileName;
                 FileName = Path.GetFileName(FilePath);
                 IsSaved = true;
@@ -63,6 +62,7 @@ namespace CmmInterpreter.Util
                 path = dialog.SelectedPath;
             }
 
+         
             return path;
         }
 
@@ -92,6 +92,7 @@ namespace CmmInterpreter.Util
                 {
                     return;
                 }
+                
                 var streamWriter = new StreamWriter(FilePath, false, Encoding.UTF8);
                 streamWriter.WriteLine(text);
                 streamWriter.Close();
