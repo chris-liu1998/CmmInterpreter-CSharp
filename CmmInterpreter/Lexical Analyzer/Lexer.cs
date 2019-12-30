@@ -164,11 +164,7 @@ namespace CmmInterpreter.Lexical_Analyzer
                 {   //如果是数字
                     var realFlag = false; //判断是否为REAL类型
                     var isError = false;
-                    //                if (is_pos) { //判断是否带有符号
-                    //                    word.Append('+');
-                    //                } else if (is_neg) {
-                    //                    word.Append('-');
-                    //                }
+                  
                     while (IsDigit (oneChar) || (oneChar == '.'))
                     {
                         if (oneChar == '.')
@@ -193,8 +189,6 @@ namespace CmmInterpreter.Lexical_Analyzer
                         }
                     }
                     i--;
-                    //                is_pos = false;
-                    //                is_neg = false;
                     if (isError)
                     {
                         Words.AddLast (new Token (word.ToString (), TokenType.Error, lineNo));

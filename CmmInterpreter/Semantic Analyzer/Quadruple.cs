@@ -23,14 +23,6 @@
 
         public override string ToString()
         {
-            //if (Instruction == null)
-            //    Instruction = "null";
-            //if (First == null)
-            //    First = "null";
-            //if (Second == null)
-            //    Second = "null";
-            //if (Third == null)
-            //    Third = "null";
             return $"{Line} : ({Instruction}, {First}, {Second}, {Third})\n";
         }
     }
